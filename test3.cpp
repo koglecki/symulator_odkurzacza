@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cmath>
 #include <queue>
+//#include <map>
 #include <vector>
 
 using namespace webots;
@@ -73,6 +74,7 @@ class Map {
     bool mapOpened = false;                //czy mapa jest otwarta (czy mo¿na j¹ zamkn¹æ)
     bool wallFound = false;            //czy pierwsza œciana zosta³a znaleziona
     bool firstTurn = true;              //czy trwa pierwszy obrót podczas mapowania
+    //std::map <double, double> map;
 
 public:
     void beginMapping() {
@@ -112,6 +114,12 @@ public:
     void finishFirstTurn() {
         firstTurn = false;
     }
+    void insertPoint(double x, double y) {
+        //map[x, y] = 1;
+    }
+    //std::map <double, double> getMap() {
+        //return map;
+    //}
 
 };
 
@@ -119,6 +127,7 @@ class CleaningRobot {
 private:
     const double wheelRadius = 0.04;
     const double wheelbase = 0.26;
+    const double robotRadius = 0.169;
     int timeStep;
     double poseSensor[2] = { 0, 0 };         //k¹t przebyty przez lewe i prawe ko³o wed³ug czujników (radiany)
     double prevPoseSensor[2] = { 0, 0 };     //poprzedni pomiar k¹ta
@@ -260,6 +269,17 @@ public:
         prevPoseSensor[1] = poseSensor[1];
     }
 
+    /*double* calculatePoint(double distance, int i) {
+        double x2 = position[0] + (robotRadius * cos(position[2]));
+        double y2 = position[1] + (robotRadius * sin(position[2]));
+
+        double x3 = x2 + (distance * cos(position[2] + pi / 2 - i * (pi / (lidar->getHorizontalResolution() - 1))));
+        double y3 = y2 + (distance * sin(position[2] + pi / 2 - i * (pi / (lidar->getHorizontalResolution() - 1))));
+
+        double xy[2] = { x3, y3 };
+        return xy;
+    }*/
+
     void turnRobot(double startAngle, double angle) {      //obrót o konkretny k¹t
         if ((angle >= 0 && position[2] > startAngle + angle) || (angle < 0 && position[2] < startAngle + angle)) {
             stopRobot();                                    //zatrzymywanie robota po obrocie
@@ -362,7 +382,7 @@ int main(int argc, char** argv) {
 
         const float* rangeImage = cr->calculatePosition();
         std::cout << *(rangeImage + 199) << std::endl;
-        double currentPosition[2] = { cr->getPosition()[0], cr->getPosition()[1] };
+        double currentPosition[3] = { cr->getPosition()[0], cr->getPosition()[1], cr->getPosition()[2] };
 
         cr->refreshDisplay(rangeImage);
 
@@ -377,6 +397,10 @@ int main(int argc, char** argv) {
             map->closeMap();
             map->finishMapping();
             cr->setMode(3);
+            //std::map <double, double> ::iterator it;
+            //for (it = map->getMap().begin(); it != map->getMap().end(); ++it) {
+                //std::cout << it->first << " => " << it->second << std::endl;
+            //}
         }
         if (cr->getMode() == 1 || cr->getMode() == 2 || cr->getMode() == 11 || cr->getMode() == 12) {
             if (*(rangeImage + 199) > 0.4 && map->isMapping() && cr->getMode() != 11 && cr->getMode() != 12)
@@ -387,13 +411,16 @@ int main(int argc, char** argv) {
                         obstacles = true;
                         if (cr->getMode() != 11 && cr->getMode() != 12)
                             cr->setMode(2);
+                        //if (map->isMapping()) {
+                            //double* xy = cr->calculatePoint(*(rangeImage + i), i);
+                            //map->insertPoint(xy[0], xy[1]);
+                        //}
                     }
                     if (*(rangeImage + i) < 0.2) {
                         cr->setMode(3);
                         if (!map->isWallFound())
                             map->beginMapping();
                         map->setWallFound();
-                        break;
                     }
                     //std::cout << i << "->" << *(rangeImage + i) << " ";
                 }
