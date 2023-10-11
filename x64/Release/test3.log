@@ -1,5 +1,19 @@
-﻿  Trwa generowanie kodu
-  Previous IPDB not found, fall back to full compilation.
-  All 529 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: Katalog pośredni (x64\Release\) zawiera pliki udostępnione z innego projektu (test3.vcxproj). Może to spowodować niepoprawne zachowanie podczas oczyszczania i ponownej kompilacji.
+  CleaningRobot.cpp
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(57,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(57,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(58,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(58,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(89,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(89,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(90,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(90,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(116,48): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(116,37): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+  main.cpp
+  Trwa generowanie kodu
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(137): warning C4172: zwracanie adresu lokalnej zmiennej lub tymczasowej: xy
+  All 656 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Zakończono generowanie kodu
-  test3.vcxproj -> C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\test3.exe
+  test3.vcxproj -> C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\simulator.exe
