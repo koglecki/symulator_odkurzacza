@@ -1,64 +1,7 @@
 #include "CleaningRobot.hpp"
+#include "Map.hpp"
 #include <iostream>
 #include <cmath>
-#include <queue>
-#include <map>
-#include <vector>
-
-class Map {
-    bool mapping = false;       //czy aktualnie trwa tworzenie mapy
-    double mapClosurePosition[2] = { 0, 0 };        //wspó³rzêdne zamkniêcia mapy
-    bool mapOpened = false;                //czy mapa jest otwarta (czy mo¿na j¹ zamkn¹æ)
-    bool wallFound = false;            //czy pierwsza œciana zosta³a znaleziona
-    bool firstTurn = true;              //czy trwa pierwszy obrót podczas mapowania
-    std::map <double, double> map;
-
-public:
-    void beginMapping() {
-        mapping = true;
-    }
-    void finishMapping() {
-        mapping = false;
-    }
-    bool isMapping() {
-        return mapping;
-    }
-    bool isWallFound() {
-        return wallFound;
-    }
-    void setWallFound() {
-        wallFound = true;
-    }
-    double* getMapClosurePosition() {
-        return mapClosurePosition;
-    }
-    void openMap() {
-        mapOpened = true;
-    }
-    void closeMap() {
-        mapOpened = false;
-    }
-    bool isMapOpened() {
-        return mapOpened;
-    }
-    void setMapClosurePosition(double x, double y) {
-        mapClosurePosition[0] = x;
-        mapClosurePosition[1] = y;
-    }
-    bool isFirstTurn() {
-        return firstTurn;
-    }
-    void finishFirstTurn() {
-        firstTurn = false;
-    }
-    void insertPoint(double x, double y) {
-        map[x, y] = 1;
-    }
-    std::map <double, double> getMap() {
-        return map;
-    }
-
-};
 
 int main(int argc, char **argv) {
     CleaningRobot* cr = new CleaningRobot();
@@ -80,7 +23,7 @@ int main(int argc, char **argv) {
         bool obstacles = false;     //czy jakieœ przeszkody s¹ w zasiêgu lidara
         bool check = false;
         bool check2 = false;
-
+        std::cout << "mapa size   " << map->getMap().size() << std::endl;
         if (!map->isFirstTurn() && (abs(map->getMapClosurePosition()[0] - currentPosition[0]) > 1 || abs(map->getMapClosurePosition()[1] - currentPosition[1] > 1)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
 
@@ -89,8 +32,10 @@ int main(int argc, char **argv) {
             map->finishMapping();
             cr->setMode(3);
             std::map <double, double> ::iterator it;
+            int ggg = 1;
             for (it = map->getMap().begin(); it != map->getMap().end(); ++it) {
-                std::cout << it->first << " => " << it->second << std::endl;
+                std::cout << ggg << " -> " << it->first << " => " << it->second << std::endl;
+                ggg = ggg + 1;
             }
         }
         if (cr->getMode() == 1 || cr->getMode() == 2 || cr->getMode() == 11 || cr->getMode() == 12) {
