@@ -1,4 +1,6 @@
 #include "Map.hpp"
+#include <vector>
+#include <iostream>
 
     void Map::beginMapping() {
         mapping = true;
@@ -37,10 +39,25 @@
     void Map::finishFirstTurn() {
         firstTurn = false;
     }
-    void Map::insertPoint(double x, double y) {
-        map[x, y] = 1;
+    bool Map::isPoint(double x, double y) {
+        for (int i = 0; i < map.size(); i++)
+        {
+            if (map[i][0] == x && map[i][1] == y)
+                return true;
+        }
+        return false;
     }
-    std::map <double, double> Map::getMap() {
+    void Map::insertPoint(double x, double y) {
+        if (!isPoint(x, y))
+            map.push_back({x, y});
+    }
+    void Map::printMap() {
+        for (int i = 0; i < map.size(); i++)
+        {
+            std::cout << i + 1 << " -> " << map[i][0] << "  " << map[i][1] << std::endl;
+        }
+    }
+    std::vector <std::vector<double>> Map::getMap() {
         return map;
     }
 

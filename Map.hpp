@@ -1,6 +1,6 @@
 #ifndef Map_hpp
 #define Map_hpp
-#include <map>
+#include <vector>
 
 class Map {
     bool mapping = false;       //czy aktualnie trwa tworzenie mapy
@@ -8,7 +8,7 @@ class Map {
     bool mapOpened = false;                //czy mapa jest otwarta (czy mo¿na j¹ zamkn¹æ)
     bool wallFound = false;            //czy pierwsza œciana zosta³a znaleziona
     bool firstTurn = true;              //czy trwa pierwszy obrót podczas mapowania
-    std::map <double, double> map;
+    std::vector <std::vector<double>> map;
 
 public:
     void beginMapping();
@@ -23,8 +23,10 @@ public:
     void setMapClosurePosition(double x, double y);
     bool isFirstTurn();
     void finishFirstTurn();
+    bool isPoint(double x, double y);
     void insertPoint(double x, double y);
-    std::map <double, double> getMap();
+    void printMap();
+    std::vector <std::vector<double>> getMap();
 
 };
 #endif

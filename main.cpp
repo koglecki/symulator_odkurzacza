@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
         bool obstacles = false;     //czy jakieœ przeszkody s¹ w zasiêgu lidara
         bool check = false;
         bool check2 = false;
-        std::cout << "mapa size   " << map->getMap().size() << std::endl;
+        //std::cout << "mapa size   " << map->getMap().size() << std::endl;
         if (!map->isFirstTurn() && (abs(map->getMapClosurePosition()[0] - currentPosition[0]) > 1 || abs(map->getMapClosurePosition()[1] - currentPosition[1] > 1)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
 
@@ -31,12 +31,13 @@ int main(int argc, char **argv) {
             map->closeMap();
             map->finishMapping();
             cr->setMode(3);
-            std::map <double, double> ::iterator it;
-            int ggg = 1;
-            for (it = map->getMap().begin(); it != map->getMap().end(); ++it) {
-                std::cout << ggg << " -> " << it->first << " => " << it->second << std::endl;
-                ggg = ggg + 1;
-            }
+            map->printMap();
+            //std::map <double, double> ::iterator it;
+            //int ggg = 1;
+            //for (it = map->getMap().begin(); it != map->getMap().end(); ++it) {
+                //std::cout << ggg << " -> " << it->first << " => " << it->second << std::endl;
+                //ggg = ggg + 1;
+            //}
         }
         if (cr->getMode() == 1 || cr->getMode() == 2 || cr->getMode() == 11 || cr->getMode() == 12) {
             if (*(rangeImage + 199) > 0.4 && map->isMapping() && cr->getMode() != 11 && cr->getMode() != 12)
