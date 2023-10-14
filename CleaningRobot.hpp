@@ -63,17 +63,11 @@ public:
 
     bool turnRobot(double startAngle, double angle);
 
-    void turnRobot2(double startAngle, double angle);
-
     void driveRobot(double voltage);
-
-    double driveRobotByDistance(double voltage, double distance);
 
     double calculateDistance();
 
     bool stopRobot();
-
-    void stopTurningRobot();
 
     ~CleaningRobot();
 };

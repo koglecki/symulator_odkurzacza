@@ -137,7 +137,6 @@
         if ((angle >= 0 && position[2] > startAngle + angle) || (angle < 0 && position[2] < startAngle + angle)) {
             stopRobot();                                    //zatrzymywanie robota po obrocie
             if (poseSensor[0] - prevPoseSensor[0] == 0) {
-
                 if (position[2] >= pi * 2)
                     position[2] = position[2] - pi * 2;
                 else if (position[2] < 0)
@@ -160,46 +159,8 @@
         return false;
     }
 
-    void CleaningRobot::turnRobot2(double startAngle, double angle) {
-        if ((angle >= 0 && position[2] > startAngle + angle) || (angle < 0 && position[2] < startAngle + angle)) {
-            stopRobot();                                    //zatrzymywanie robota po obrocie
-            if (poseSensor[0] - prevPoseSensor[0] == 0) {
-
-                if (position[2] >= pi * 2)
-                    position[2] = position[2] - pi * 2;
-                else if (position[2] < 0)
-                    position[2] = position[2] + pi * 2;
-            }
-        }
-        else if ((angle >= 0 && position[2] <= startAngle + angle - 0.3) || (angle < 0 && position[2] >= startAngle + angle + 0.3)) {
-            if (angle >= 0)                                 //pe³na prêdkoœæ obrotu
-                setDriveParameters(-1, 1);
-            else
-                setDriveParameters(1, -1);
-        }
-        else if ((angle >= 0 && position[2] > startAngle + angle - 0.3) || (angle < 0 && position[2] < startAngle + angle + 0.3)) {
-            if (angle >= 0)                                 // zmniejszona prêdkoœæ obrotu
-                setDriveParameters(-0.106, 0.106);
-            else
-                setDriveParameters(0.106, -0.106);
-        }
-    }
-
     void CleaningRobot::driveRobot(double voltage) {       // jazda prosto z jedn¹ nastaw¹
         setDriveParameters(voltage, voltage);
-    }
-
-    double CleaningRobot::driveRobotByDistance(double voltage, double distance) {
-        double s = 0;
-        if (distance > 0) {
-            double sright = (poseSensor[1] - prevPoseSensor[1]) * wheelRadius;
-            double sleft = (poseSensor[0] - prevPoseSensor[0]) * wheelRadius;
-            s = (sleft + sright) / 2;
-            setDriveParameters(voltage, voltage);
-        }
-        else
-            stopRobot();
-        return s;
     }
 
     double CleaningRobot::calculateDistance() {         // droga przebyta w jednostce czasu
@@ -208,10 +169,6 @@
         double sleft = (poseSensor[0] - prevPoseSensor[0]) * wheelRadius;
         s = (sleft + sright) / 2;
         return s;
-    }
-
-    void CleaningRobot::stopTurningRobot() {                      // zatrzymanie obrotu robota
-        setDriveParameters(0, 0);
     }
 
     CleaningRobot::~CleaningRobot() {
