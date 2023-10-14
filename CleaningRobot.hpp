@@ -20,12 +20,12 @@ private:
     int timeStep;
     double poseSensor[2] = { 0, 0 };         //k¹t przebyty przez lewe i prawe ko³o wed³ug czujników (radiany)
     double prevPoseSensor[2] = { 0, 0 };     //poprzedni pomiar k¹ta
-    double position[3] = { 0.51, 1.7, 3.14159 };      //aktualna pozycja robota (x,y,theta)
-    int mode = 1;                   //tryb pracy robota
+    double position[3] = { 0, 0, 0 };      //aktualna pozycja robota (x,y,theta)                  
     int displayWidth;
     int displayHeight;
 
     void clearRobotDisplay();
+    void setRobot();
 
 public:
     Robot* robot = new Robot();
@@ -39,9 +39,7 @@ public:
 
     CleaningRobot();
 
-    void setMode(int m);
-
-    int getMode();
+    CleaningRobot(double x, double y, double theta);
 
     double* getPosition();
 
@@ -51,9 +49,11 @@ public:
 
     int getTimeStep();
 
+    const float* getLidarScan();
+
     void setDriveParameters(double leftVoltage, double rightVoltage);
 
-    const float* calculatePosition();
+    void calculatePosition();
 
     void refreshDisplay(const float* rangeImage);
 
@@ -61,7 +61,7 @@ public:
 
     double* calculatePoint(double distance, int i);
 
-    void turnRobot(double startAngle, double angle);
+    bool turnRobot(double startAngle, double angle);
 
     void turnRobot2(double startAngle, double angle);
 

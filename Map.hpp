@@ -3,6 +3,7 @@
 #include <vector>
 
 class Map {
+private:
     bool mapping = false;       //czy aktualnie trwa tworzenie mapy
     double mapClosurePosition[2] = { 0, 0 };        //wspó³rzêdne zamkniêcia mapy
     bool mapOpened = false;                //czy mapa jest otwarta (czy mo¿na j¹ zamkn¹æ)
