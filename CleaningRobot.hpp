@@ -69,7 +69,9 @@ public:
 
     double driveRobotByDistance(double voltage, double distance);
 
-    void stopRobot();
+    double calculateDistance();
+
+    bool stopRobot();
 
     void stopTurningRobot();
 

@@ -5,12 +5,13 @@
 
 class RobotController {
 private:
-    int mode = 1;       //tryb pracy robota
+    int mode = 2;       //tryb pracy robota
     CleaningRobot* robot;
     Map* map;
     double startAngle = 0;
     double d = 0;
     double distance = 0;
+    double targetAngle = 0;
 
 public:
     RobotController(CleaningRobot* cr, Map* m) {
@@ -72,108 +73,83 @@ public:
     }
     
     void chooseMode(const float* rangeImage) {
-        bool check = false;
-        bool check2 = false;
+        bool obstacleInFront = false;
+        bool obstacle = false;
         
-        
-
         switch (mode) {
         case 1: robot->driveRobot(5);  //jazda prosto z pe³n¹ prêdkoœci¹
-            break;
+                break;
         case 2: robot->driveRobot(2);  //jazda prosto z mniejsz¹ prêdkoœci¹
-            break;
-        case 3: robot->stopRobot();    //zatrzymywanie robota
-            if (robot->getPoseSensor()[0] - robot->getPrevPoseSensor()[0] == 0) {
-                if (mode == 11)
-                    mode = 10;
-                else
+                break;
+        case 3: if (robot->stopRobot())  //zatrzymywanie robota
                     mode = 4;
-            }
-            break;
-        case 4: if (map->isMapping() && map->isFirstTurn())     //pocz¹tek mapowania
-            setMode(5);
-              else if (map->isMapping() && !map->isFirstTurn()) {     //polecenia przy obje¿d¿aniu terenu
-            for (int i = 0; i < 200; i++) {
-                if (*(rangeImage + i) < 0.2) {
-                    check2 = true;
-                    if (i > 90 && i < 110) {
-                        check = true;
-                        break;
+                break;
+        //tryb decyzyjny
+        case 4: if (map->isMapping() && map->isFirstTurn()) {    //pocz¹tek mapowania
+                    map->finishFirstTurn();
+                    map->setMapClosurePosition(robot->getPosition()[0], robot->getPosition()[1]);     //wspó³rzêdne rozpoczynaj¹ce mapowanie
+                    mode = 4;
+                }
+                else if (map->isMapping() && !map->isFirstTurn()) {     //polecenia przy tworzeniu mapy
+                    for (int i = 0; i < 200; i++) {
+                        if (*(rangeImage + i) < 0.2) {
+                            obstacle = true;
+                            if (i > 90 && i < 110) {
+                                obstacleInFront = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (obstacleInFront) {    //przy rogu / œcianie -> obrót o 90 stopni
+                        mode = 6;
+                        targetAngle = pi / 2;
+                    }
+                    else if (*(rangeImage + 199) > 0.6 && !obstacle) {    //przy wewnêtrznym rogu -> szukanie œciany na nowo
+                        mode = 11;
+                        distance = 0;
+                    }
+                    else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) < 0.6 && !obstacle)    //robot skierowany do œciany -> podje¿d¿anie bli¿ej œciany
+                        mode = 13;
+                    else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.45 && *(rangeImage + 199) < 0.6) {     //wiêkszy obrót do œciany w przypadku uskoku na œcianie
+                        mode = 6;
+                        targetAngle = -0.3;
+                    }
+                    else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) <= 0.45) {   //lekki obrót do œciany
+                        mode = 6;
+                        targetAngle = -0.1;
+                    }
+                    else {
+                        mode = 6;     //lekki obrót od œciany
+                        targetAngle = 0.1;
                     }
                 }
-            }
-            if (check)     //przy rogu / œcianie
-                setMode(7);
-            else if (*(rangeImage + 199) > 0.6 && !check2) {    //przy wewnêtrznym rogu
-                setMode(11);
-                distance = 0;
-            }
-            else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) < 0.6 && !check2)    //
-                setMode(13);
-            else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.45 && *(rangeImage + 199) < 0.6) {      //wiêkszy obrót w przypadku uskoku na œcianie
-                setMode(9);
-            }
-            else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) <= 0.45)    //do œciany
-                setMode(6);
-            else   //od œciany    
-                setMode(8);
-
-        }
-              else
-            setMode(3);
-            startAngle = robot->getPosition()[2];
-            break;
-        case 5: map->finishFirstTurn();
-            map->setMapClosurePosition(robot->getPosition()[0], robot->getPosition()[1]);     //pocz¹tek tworzenia mapy
-            if (*(rangeImage + 199) < 0.2 || *(rangeImage + 199) > 0.4)
-                robot->turnRobot(startAngle, pi);
-            else
-                robot->stopTurningRobot();
-                if (robot->getPoseSensor()[0] - robot->getPrevPoseSensor()[0] == 0)
+                else
+                    setMode(3);
+                startAngle = robot->getPosition()[2];
+                break;
+        case 6: if (robot->turnRobot(startAngle, targetAngle))      // obrót robota o podany k¹t
                     mode = 2;
-            break;
-        case 6: if (robot->turnRobot(startAngle, -0.1))
-                    mode = 2;
-                 break;
-        case 7: if (robot->turnRobot(startAngle, pi / 2))
-                    mode = 2;
-            break;
-        case 8: if (robot->turnRobot(startAngle, 0.1))      // obroty robota w ró¿nych przypadkach
-                    mode = 2;
-            break;
-        case 9: robot->turnRobot(startAngle, -0.3);
-            if (robot->getPoseSensor()[0] - robot->getPrevPoseSensor()[0] == 0)
-                mode = 2;
-            break;
-        case 10: robot->turnRobot2(startAngle, -pi / 2);
-            if (robot->getPoseSensor()[0] - robot->getPrevPoseSensor()[0] == 0)
-                mode = 12;
-            break;
-
+                break;
+        case 10: if (robot->turnRobot(startAngle, -pi / 2))
+                    mode = 12;
+                break;
         case 12: if (*(rangeImage + 199) > 0.6)
-            robot->driveRobot(0.5);
-               else {
-            robot->stopRobot();
-            if (robot->getPoseSensor()[0] - robot->getPrevPoseSensor()[0] == 0)
-                mode = 4;
-        }
-            break;
-        case 13: if (*(rangeImage + 199) < 0.6 && *(rangeImage + 199) > 0.4)
-            robot->driveRobot(0.5);
-               else {
-            robot->stopRobot();
-            if (robot->getPoseSensor()[0] - robot->getPrevPoseSensor()[0] == 0)
-                mode = 4;
-        }
-            break;
-        case 11:
-
-            d = robot->driveRobotByDistance(0.5, 0.3 - distance);
-            distance += d;
-            startAngle = robot->getPosition()[2];
-            if (distance - d > 0.3)
-                mode = 10;
-            break;
+                    robot->driveRobot(0.5);
+                 else
+                    mode = 3;
+                break;
+        case 13: if (*(rangeImage + 199) < 0.6 && *(rangeImage + 199) > 0.4)       // powolna jazda do pewnej wartoœci lidara
+                    robot->driveRobot(0.5);
+                 else
+                    mode = 3;
+                break;
+        case 11: if (distance < 0.3) {
+                    robot->driveRobot(0.5);
+                    distance += robot->calculateDistance();
+                 }
+                else if (robot->stopRobot())
+                    mode = 10;
+                break;
         }
     }
 };
@@ -183,22 +159,18 @@ int main(int argc, char **argv) {
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);   
     
-    while (cr->robot->step(cr->getTimeStep()) != -1) {      //g³ówna pêtla programu
+    while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;
 
-        cr->calculatePosition();
-        const float* rangeImage = cr->getLidarScan();
-        std::cout << *(rangeImage + 199) << std::endl;
-        double currentPosition[3] = {cr->getPosition()[0], cr->getPosition()[1], cr->getPosition()[2] };
+        cr->calculatePosition();                // obliczanie nowej pozycji robota
+        const float* lidarScan = cr->getLidarScan();    // pobranie aktualnych danych z lidara
+        std::cout << *(lidarScan + 199) << std::endl;
  
-        cr->refreshDisplay(rangeImage);
-
-        
-        
-        controller->checkMap();
-        controller->checkObstacles(rangeImage);
-        controller->chooseMode(rangeImage);
-
+        cr->refreshDisplay(lidarScan);
+            
+        controller->checkMap();                 // sprawdzanie warunków otwarcia i zamkniêcia mapy
+        controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
+        controller->chooseMode(lidarScan);      // wybór trybu pracy robota
 
         cr->refreshSensorValues();
     }

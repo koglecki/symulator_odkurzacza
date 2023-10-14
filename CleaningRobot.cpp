@@ -124,8 +124,12 @@
         return xy;
     }
 
-    void CleaningRobot::stopRobot() {                      //zatrzymanie robota
+    bool CleaningRobot::stopRobot() {                      //zatrzymanie robota
         setDriveParameters(0, 0);
+        if (poseSensor[0] - prevPoseSensor[0] == 0)
+            return true;
+        else
+            return false;
     }
 
     bool CleaningRobot::turnRobot(double startAngle, double angle) {      //obrót o konkretny k¹t
@@ -195,6 +199,14 @@
         }
         else
             stopRobot();
+        return s;
+    }
+
+    double CleaningRobot::calculateDistance() {         // droga przebyta w jednostce czasu
+        double s = 0;
+        double sright = (poseSensor[1] - prevPoseSensor[1]) * wheelRadius;
+        double sleft = (poseSensor[0] - prevPoseSensor[0]) * wheelRadius;
+        s = (sleft + sright) / 2;
         return s;
     }
 
