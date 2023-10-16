@@ -27,7 +27,6 @@ public:
     void finishFirstTurn();
     bool isPoint(double x, double y);
     void insertPoint(double x, double y);
-    void printMap();
     void createMap();
     std::vector <std::vector<double>> getPoints();
     std::vector <std::vector<bool>> getMap();

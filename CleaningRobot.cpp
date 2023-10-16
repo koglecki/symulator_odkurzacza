@@ -173,33 +173,19 @@
 
     void CleaningRobot::clearDisplay() {
         display->setColor(0x000000);
-        display->drawRectangle(0, 0, displayWidth, displayHeight);   // usuniêcie starej pozycji robota z ekranu
+        display->drawRectangle(0, 0, displayWidth, displayHeight);
         display->fillRectangle(0, 0, displayWidth, displayHeight);
     }
 
-    void CleaningRobot::drawMap(std::vector <std::vector<bool>> map) {
-        // x + minX + 20
-        // -y + maxY + 20
+    void CleaningRobot::drawMap(std::vector <std::vector<bool>> map) {      // rysowanie zapisanej mapy
         display->setColor(0xffff00);
-        //std::cout << map.size() << std::endl;
-        //std::cout << map[0].size() << std::endl;
+   
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map[i].size(); j++) {
                 if (map[i][j])
-                    display->drawPixel(j + 50, i + 51);//50 51
-            }
-            
-        }  
-        /*int xd = 0;
-        for (int i = 0; i < map.size(); i++)
-        {
-            for (int j = 0; j < 3; j++) {
-                std::cout << map[i][j] << " ";
-                xd++;
-            }
-            std::cout << std::endl;
-        }*/
-        //std::cout << "wyn = " << xd;
+                    display->drawPixel(j + 50, i + 51);
+            }           
+        }
     }
 
     CleaningRobot::~CleaningRobot() {

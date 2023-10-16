@@ -173,13 +173,12 @@ int main(int argc, char **argv) {
         controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
         controller->chooseMode(lidarScan);      // wybór trybu pracy robota
 
-        cr->refreshSensorValues();
-
         if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened()) {
             map->createMap();
             cr->drawMap(map->getMap());
-            
         }
+
+        cr->refreshSensorValues();
     }
     delete cr, map, controller;
     return 0;

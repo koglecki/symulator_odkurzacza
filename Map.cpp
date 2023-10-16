@@ -51,13 +51,7 @@
         if (!isPoint(x, y))
             points.push_back({x, y});
     }
-    void Map::printMap() {
-        for (int i = 0; i < points.size(); i++)
-        {
-            std::cout << i + 1 << " -> " << points[i][0] << "  " << points[i][1] << std::endl;
-        }
-    }
-    void Map::createMap() {
+    void Map::createMap() {     // tworzenie mapy (siatki zajêtoœci), true = przeszkoda
         double minX = 0;
         double maxX = 0;
         double minY = 0;
@@ -77,19 +71,13 @@
         maxX = round(maxX * 100);
         minY = round(minY * 100);
         maxY = round(maxY * 100);
-        //std::cout << "minX = " << minX << " , maxX = " << maxX << " , minY = " << minY << " , maxY = " << maxY << std::endl;
+        
         int xsize = int(maxX - minX);
         int ysize = int(maxY - minY);
         std::vector<std::vector<bool>> v(ysize, std::vector<bool>(xsize, false));
         map = v;
-        //map[int(-round(points[986][1] * 100) + maxY)][int(round(points[986][0] * 100) - minX)] = true; //845
-        //std::cout << points[986][1] << " " << points[986][0] << std::endl;
-        //std::cout << map[int(-round(points[986][1] * 100) + maxY)][int(round(points[986][0] * 100) - minX)];
-        //std::cout << int(-round(points[985][1] * 100) + maxY) << " " << int(round(points[985][0] * 100) - minX) << std::endl;
-        //std::cout << int(-round(points[986][1] * 100) + maxY) << " " << int(round(points[986][0] * 100) - minX) << std::endl;
+        
         for (int j = 0; j < points.size(); j++) {
-            //std::cout << -round(points[j][1] * 100) + maxY << std::endl;
-            //std::cout << -points[j][1] * 100 + maxY << std::endl;
             if (int(-round(points[j][1] * 100) + maxY) == ysize)
                 map[-round(points[j][1] * 100) + maxY - 1][round(points[j][0] * 100) - minX] = true;
             else if (int(round(points[j][0] * 100) - minX) == xsize)
@@ -97,8 +85,6 @@
             else
                 map[-round(points[j][1] * 100) + maxY][round(points[j][0] * 100) - minX] = true;
         }
-        // x + minX + 20
-        // -y + maxY + 20
     }
 
     std::vector <std::vector<double>> Map::getPoints() {
