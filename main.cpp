@@ -25,15 +25,18 @@ public:
         return mode;
     }
 
-    void checkMap() {
+    void checkMap() {       //!!!!!!!!!!! to te¿ potem mo¿na zmieniæ
         if (!map->isFirstTurn() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 1 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 1)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
 
-        if (map->isMapOpened() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) < 0.2) && (abs(map->getMapClosurePosition()[1] - robot->getPosition()[1]) < 0.2)) {
+        if (map->isMapping() && map->isMapOpened() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) < 0.2) && (abs(map->getMapClosurePosition()[1] - robot->getPosition()[1]) < 0.2)) {
             map->closeMap();
             map->finishMapping();
             mode = 4;
-            map->printMap();
+            robot->clearDisplay();
+            //map->printMap();
+            
+            
         }
     }
 
@@ -171,6 +174,12 @@ int main(int argc, char **argv) {
         controller->chooseMode(lidarScan);      // wybór trybu pracy robota
 
         cr->refreshSensorValues();
+
+        if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened()) {
+            map->createMap();
+            cr->drawMap(map->getMap());
+            
+        }
     }
     delete cr, map, controller;
     return 0;

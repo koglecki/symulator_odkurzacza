@@ -9,7 +9,8 @@ private:
     bool mapOpened = false;                //czy mapa jest otwarta (czy mo¿na j¹ zamkn¹æ)
     bool wallFound = false;            //czy pierwsza œciana zosta³a znaleziona
     bool firstTurn = true;              //czy trwa pierwszy obrót podczas mapowania
-    std::vector <std::vector<double>> map;
+    std::vector <std::vector<double>> points;
+    std::vector <std::vector<bool>> map;
 
 public:
     void beginMapping();
@@ -27,7 +28,9 @@ public:
     bool isPoint(double x, double y);
     void insertPoint(double x, double y);
     void printMap();
-    std::vector <std::vector<double>> getMap();
+    void createMap();
+    std::vector <std::vector<double>> getPoints();
+    std::vector <std::vector<bool>> getMap();
 
 };
 #endif

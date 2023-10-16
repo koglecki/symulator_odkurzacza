@@ -69,6 +69,10 @@ public:
 
     bool stopRobot();
 
+    void clearDisplay();
+
+    void drawMap(std::vector <std::vector<bool>> map);
+
     ~CleaningRobot();
 };
 #endif
