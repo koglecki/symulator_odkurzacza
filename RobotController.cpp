@@ -68,75 +68,75 @@
         switch (mode) {
             //tryb decyzyjny
         case 1: if (map->isMapping() && map->isFirstTurn()) {    //pocz¹tek mapowania
-            map->finishFirstTurn();
-            map->setMapClosurePosition(robot->getPosition()[0], robot->getPosition()[1]);     //wspó³rzêdne rozpoczynaj¹ce mapowanie
-        }
-              else if (map->isMapping() && !map->isFirstTurn()) {     //polecenia przy tworzeniu mapy
-            for (int i = 0; i < 200; i++) {
-                if (*(rangeImage + i) < 0.2) {
-                    obstacle = true;
-                    if (i > 90 && i < 110) {
-                        obstacleInFront = true;
-                        break;
+                    map->finishFirstTurn();
+                    map->setMapClosurePosition(robot->getPosition()[0], robot->getPosition()[1]);     //wspó³rzêdne rozpoczynaj¹ce mapowanie
+                }
+                else if (map->isMapping() && !map->isFirstTurn()) {     //polecenia przy tworzeniu mapy
+                    for (int i = 0; i < 200; i++) {
+                        if (*(rangeImage + i) < 0.2) {
+                            obstacle = true;
+                            if (i > 90 && i < 110) {
+                                obstacleInFront = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (obstacleInFront) {    //przy rogu / œcianie -> obrót o 90 stopni
+                        mode = 5;
+                        targetAngle = pi / 2;
+                    }
+                    else if (*(rangeImage + 199) > 0.6 && !obstacle) {    //przy wewnêtrznym rogu -> szukanie œciany na nowo
+                        mode = 9;
+                        distance = 0;
+                    }
+                    else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) < 0.6 && !obstacle)    //robot skierowany do œciany -> podje¿d¿anie bli¿ej œciany
+                        mode = 8;
+                    else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.45 && *(rangeImage + 199) < 0.6) {     //wiêkszy obrót do œciany w przypadku uskoku na œcianie
+                        mode = 5;
+                        targetAngle = -0.3;
+                    }
+                    else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) <= 0.45) {   //lekki obrót do œciany
+                        mode = 5;
+                        targetAngle = -0.1;
+                    }
+                    else {
+                        mode = 5;     //lekki obrót od œciany
+                        targetAngle = 0.1;
                     }
                 }
-            }
-            if (obstacleInFront) {    //przy rogu / œcianie -> obrót o 90 stopni
-                mode = 5;
-                targetAngle = pi / 2;
-            }
-            else if (*(rangeImage + 199) > 0.6 && !obstacle) {    //przy wewnêtrznym rogu -> szukanie œciany na nowo
-                mode = 9;
-                distance = 0;
-            }
-            else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) < 0.6 && !obstacle)    //robot skierowany do œciany -> podje¿d¿anie bli¿ej œciany
-                mode = 8;
-            else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.45 && *(rangeImage + 199) < 0.6) {     //wiêkszy obrót do œciany w przypadku uskoku na œcianie
-                mode = 5;
-                targetAngle = -0.3;
-            }
-            else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) <= 0.45) {   //lekki obrót do œciany
-                mode = 5;
-                targetAngle = -0.1;
-            }
-            else {
-                mode = 5;     //lekki obrót od œciany
-                targetAngle = 0.1;
-            }
-        }
-              else
-            mode = 4;
-            startAngle = robot->getPosition()[2];
-            break;
+                else
+                    mode = 4;
+                startAngle = robot->getPosition()[2];
+                break;
         case 2: robot->driveRobot(5);  //jazda prosto z pe³n¹ prêdkoœci¹
-            break;
+                break;
         case 3: robot->driveRobot(2);  //jazda prosto z mniejsz¹ prêdkoœci¹
-            break;
+                break;
         case 4: if (robot->stopRobot())  //zatrzymywanie robota
-            mode = 1;
-            break;
+                    mode = 1;
+                break;
         case 5: if (robot->turnRobot(startAngle, targetAngle))      // obrót robota o podany k¹t
-            mode = 3;
-            break;
+                    mode = 3;
+                break;
         case 6: if (robot->turnRobot(startAngle, -pi / 2))
-            mode = 7;
-            break;
+                    mode = 7;
+                break;
         case 7: if (*(rangeImage + 199) > 0.6)
-            robot->driveRobot(0.5);
-              else
-            mode = 4;
-            break;
+                    robot->driveRobot(0.5);
+                else
+                    mode = 4;
+                break;
         case 8: if (*(rangeImage + 199) < 0.6 && *(rangeImage + 199) > 0.4)       // powolna jazda do pewnej wartoœci lidara
-            robot->driveRobot(0.5);
-              else
-            mode = 4;
-            break;
+                    robot->driveRobot(0.5);
+                else
+                    mode = 4;
+                break;
         case 9: if (distance < 0.3) {          // powolna jazda przez 0.3 metra
-            robot->driveRobot(0.5);
-            distance += robot->calculateDistance();
-        }
-              else if (robot->stopRobot())
-            mode = 6;
-            break;
+                    robot->driveRobot(0.5);
+                    distance += robot->calculateDistance();
+                }
+                else if (robot->stopRobot())
+                    mode = 6;
+                break;
         }
     }

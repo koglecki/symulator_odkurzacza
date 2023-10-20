@@ -125,7 +125,7 @@
         int xsize = (map[0].size() - 20) / 35;
         int ysize = (map.size() - 20) / 35;
 
-        std::vector<std::vector<bool>> v(ysize, std::vector<bool>(xsize, false));
+        std::vector<std::vector<int>> v(ysize, std::vector<int>(xsize, -1));
         grid = v;
 
         bool gridFull;
@@ -135,7 +135,7 @@
                 for (int i = 10 + g * 35; i < 45 + g * 35; i++) {
                     for (int j = 10 + h * 35; j < 45 + h * 35; j++) {
                         if (map[i][j]) {
-                            grid[g][h] = true;
+                            grid[g][h] = -2;
                             gridFull = true;
                             break;
                         }
@@ -146,7 +146,35 @@
 
             }
         }
-        
+        calculateGrid();       
+    }
+
+    void Map::calculateGrid() {
+        int poseX = 0;
+        int poseY = 0;
+
+        grid[poseY][poseX] = 0;
+        bool isFound = true;
+        int i = 0;
+        while (isFound) {
+            isFound = false;
+            for (int g = 0; g < grid.size(); g++) {
+                for (int h = 0; h < grid[g].size(); h++) {
+                    if (grid[g][h] == i) {
+                        isFound = true;
+                        if (g > 0 && grid[g - 1][h] == -1)
+                            grid[g - 1][h] = i + 1;
+                        if (h > 0 && grid[g][h - 1] == -1)
+                            grid[g][h - 1] = i + 1;
+                        if (g < grid.size() - 1 && grid[g + 1][h] == -1)
+                            grid[g + 1][h] = i + 1;
+                        if (h < grid[g].size() - 1 && grid[g][h + 1] == -1)
+                            grid[g][h + 1] = i + 1;
+                    }
+                }
+            }
+            i++;
+        }      
     }
 
     std::vector <std::vector<double>> Map::getPoints() {
@@ -157,7 +185,7 @@
         return map;
     }
 
-    std::vector <std::vector<bool>> Map::getGrid() {
+    std::vector <std::vector<int>> Map::getGrid() {
         return grid;
     }
 

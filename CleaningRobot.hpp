@@ -71,7 +71,7 @@ public:
 
     void clearDisplay();
 
-    void drawMap(std::vector <std::vector<bool>> map, std::vector <std::vector<bool>> grid);
+    void drawMap(std::vector <std::vector<bool>> map, std::vector <std::vector<int>> grid);
 
     ~CleaningRobot();
 };

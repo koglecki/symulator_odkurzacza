@@ -177,7 +177,7 @@
         display->fillRectangle(0, 0, displayWidth, displayHeight);
     }
 
-    void CleaningRobot::drawMap(std::vector <std::vector<bool>> map, std::vector <std::vector<bool>> grid) {      // rysowanie zapisanej mapy
+    void CleaningRobot::drawMap(std::vector <std::vector<bool>> map, std::vector <std::vector<int>> grid) {      // rysowanie zapisanej mapy
         display->setColor(0xffff00);
    
         for (int i = 0; i < map.size(); i++) {
@@ -196,10 +196,10 @@
         std::cout << "gridY = " << grid.size() << ", gridX = " << grid[0].size() << std::endl;
         for (int g = 0; g < grid.size(); g++) {
             for (int h = 0; h < grid[g].size(); h++) {
-                if (grid[g][h])
-                    std::cout << "1 ";
-                else
-                    std::cout << "0 ";
+                //if (grid[g][h] == -2)
+                    //std::cout << "1 ";
+                //else
+                    std::cout << grid[g][h] << " ";
             }
             std::cout << std::endl;
         }

@@ -11,7 +11,7 @@ private:
     bool firstTurn = true;              //czy trwa pierwszy obrót podczas mapowania
     std::vector <std::vector<double>> points;
     std::vector <std::vector<bool>> map;
-    std::vector <std::vector<bool>> grid;
+    std::vector <std::vector<int>> grid;
 
 public:
     void beginMapping();
@@ -31,8 +31,9 @@ public:
     void createMap();
     void optimizeMap();
     void createGrid();
+    void calculateGrid();
     std::vector <std::vector<double>> getPoints();
     std::vector <std::vector<bool>> getMap();
-    std::vector <std::vector<bool>> getGrid();
+    std::vector <std::vector<int>> getGrid();
 };
 #endif
