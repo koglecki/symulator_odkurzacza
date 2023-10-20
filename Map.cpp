@@ -85,6 +85,68 @@
             else
                 map[-round(points[j][1] * 100) + maxY][round(points[j][0] * 100) - minX] = true;
         }
+
+        optimizeMap();
+        createGrid();
+    }
+
+    void Map::optimizeMap() {
+        int counter = 0;
+        for (int i = 0; i < map.size(); i++) {
+            for (int j = 0; j < map[i].size(); j++) {
+                if (!map[i][j])
+                    counter++;
+                else if (map[i][j] && counter <= 50) {
+                    for (int k = 1; k <= counter; k++)
+                        map[i][j - k] = true;
+                    counter = 0;
+                }
+                else
+                    counter = 0;
+            }
+        }
+        counter = 0;
+        for (int i = 0; i < map[0].size(); i++) {
+            for (int j = 0; j < map.size(); j++) {
+                if (!map[j][i])
+                    counter++;
+                else if (map[j][i] && counter <= 50) {
+                    for (int k = 1; k <= counter; k++)
+                        map[j - k][i] = true;
+                    counter = 0;
+                }
+                else
+                    counter = 0;
+            }
+        }
+    }
+
+    void Map::createGrid() {
+        int xsize = (map[0].size() - 20) / 35;
+        int ysize = (map.size() - 20) / 35;
+
+        std::vector<std::vector<bool>> v(ysize, std::vector<bool>(xsize, false));
+        grid = v;
+
+        bool gridFull;
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                gridFull = false;
+                for (int i = 10 + g * 35; i < 45 + g * 35; i++) {
+                    for (int j = 10 + h * 35; j < 45 + h * 35; j++) {
+                        if (map[i][j]) {
+                            grid[g][h] = true;
+                            gridFull = true;
+                            break;
+                        }
+                    }
+                    if (gridFull)
+                        break;
+                }
+
+            }
+        }
+        
     }
 
     std::vector <std::vector<double>> Map::getPoints() {
@@ -93,5 +155,9 @@
 
     std::vector <std::vector<bool>> Map::getMap() {
         return map;
+    }
+
+    std::vector <std::vector<bool>> Map::getGrid() {
+        return grid;
     }
 
