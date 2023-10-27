@@ -23,7 +23,7 @@
         left_position->enable(timeStep);
         lidar->enable(timeStep);
         lidar->enablePointCloud();
-        pen->write(1);
+        pen->write(0);
         displayWidth = display->getWidth();
         displayHeight = display->getHeight();
     }
@@ -133,7 +133,6 @@
     }
 
     bool CleaningRobot::turnRobot(double startAngle, double angle) {      //obrót o konkretny k¹t
-        bool isFinished = false;
         if ((angle >= 0 && position[2] > startAngle + angle) || (angle < 0 && position[2] < startAngle + angle)) {
             stopRobot();                                    //zatrzymywanie robota po obrocie
             if (poseSensor[0] - prevPoseSensor[0] == 0) {
@@ -155,6 +154,33 @@
                 setDriveParameters(-0.106, 0.106);
             else
                 setDriveParameters(0.106, -0.106);
+        }
+        return false;
+    }
+
+    bool CleaningRobot::turnRobotToAngle(double startAngle, double goalAngle) {      //obrót do konketnego po³o¿enia robota
+        double angle = goalAngle - startAngle;
+        if (angle == 0 || (angle > 0 && position[2] > goalAngle) || (angle < 0 && position[2] < goalAngle)) {
+            stopRobot();                                    //zatrzymywanie robota po obrocie
+            if (poseSensor[0] - prevPoseSensor[0] == 0) {
+                if (position[2] >= pi * 2)
+                    position[2] = position[2] - pi * 2;
+                else if (position[2] < 0)
+                    position[2] = position[2] + pi * 2;
+                return true;
+            }
+        }
+        else if (position[2] <= goalAngle - 0.25 || position[2] >= goalAngle + 0.25) {
+            if (angle >= 0)                                 //pe³na prêdkoœæ obrotu
+                setDriveParameters(-1, 1);
+            else
+                setDriveParameters(1, -1);
+        }
+        else if ((angle >= 0 && position[2] > goalAngle - 0.25) || (angle < 0 && position[2] < startAngle + angle + 0.25)) {
+            if (angle >= 0)                                 //zmniejszona prêdkoœæ obrotu
+                setDriveParameters(-0.05, 0.05);
+            else
+                setDriveParameters(0.05, -0.05);
         }
         return false;
     }

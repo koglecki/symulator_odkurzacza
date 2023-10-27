@@ -61,6 +61,8 @@ public:
 
     double* calculatePoint(double distance, int i);
 
+    bool turnRobotToAngle(double startAngle, double goalAngle);
+
     bool turnRobot(double startAngle, double angle);
 
     void driveRobot(double voltage);

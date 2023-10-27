@@ -12,6 +12,14 @@
         return mode;
     }
 
+    bool RobotController::isCleaning() {
+        return cleaning;
+    }
+
+    void RobotController::startCleaning() {
+        cleaning = true;
+    }
+
     void RobotController::checkMap() {       //!!!!!!!!!!! to te¿ potem mo¿na zmieniæ
         if (!map->isFirstTurn() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 1 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 1)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
@@ -22,7 +30,6 @@
             mode = 4;
             robot->clearDisplay();
             //map->printMap();
-
 
         }
     }
@@ -61,9 +68,54 @@
             mode = 2;
     }
 
+    double RobotController::dist(double x, double y) {
+        bool isY = true;
+        double angle = robot->getPosition()[2];
+        if (abs(x - robot->getPosition()[0]) < abs(y - robot->getPosition()[1]))
+            isY = false;
+        if (isY && abs(y - robot->getPosition()[1]) > 0.01) {
+            if (y < robot->getPosition()[1])
+                angle = 3 * pi / 2;
+            else
+                angle = pi / 2;
+        }
+        else if (!isY && abs(x - robot->getPosition()[0]) > 0.01) {
+            if (x < robot->getPosition()[0])
+                angle = pi;
+            else
+                angle = 0;
+        }
+        
+        return angle;
+    }
+
+    double RobotController::distMax(double x, double y) {
+        bool isY = true;
+        double angle = robot->getPosition()[2];
+        if (abs(x - robot->getPosition()[0]) > abs(y - robot->getPosition()[1]))
+            isY = false;
+        if (isY && abs(y - robot->getPosition()[1]) > 0.01) {
+            if (y < robot->getPosition()[1])
+                angle = 3 * pi / 2;
+            else
+                angle = pi / 2;
+        }
+        else if (!isY && abs(x - robot->getPosition()[0]) > 0.01) {
+            if (x < robot->getPosition()[0])
+                angle = pi;
+            else
+                angle = 0;
+        }
+
+        return angle;
+    }
+
     void RobotController::chooseMode(const float* rangeImage) {
         bool obstacleInFront = false;
         bool obstacle = false;
+        
+        double goalX = 0;
+        double goalY = 0;
 
         switch (mode) {
             //tryb decyzyjny
@@ -104,6 +156,21 @@
                         targetAngle = 0.1;
                     }
                 }
+                else if (cleaning) {
+                    robot->pen->write(1);
+                    pointX = 1;
+                    pointY = 1;
+                    if (xd) {
+                        xd = false;
+                        targetAngle = distMax(pointX, pointY);
+                        mode = 10;
+                    }
+                    else if (xd2) {
+                        xd2 = false;
+                        targetAngle = distMax(pointX, pointY);
+                        mode = 10;
+                    }
+                }
                 else
                     mode = 4;
                 startAngle = robot->getPosition()[2];
@@ -138,5 +205,33 @@
                 else if (robot->stopRobot())
                     mode = 6;
                 break;
+        case 10: if (robot->turnRobotToAngle(startAngle, targetAngle)) {  // pi / 2, 0
+                    if (robot->getPosition()[2] > 6 || robot->getPosition()[2] < 0.1 || (robot->getPosition()[2] > pi - 0.1 && robot->getPosition()[2] < pi + 0.1)) {
+                        mode = 13;
+                        startCoord = robot->getPosition()[0];
+                    }
+                    else {
+                        mode = 11;
+                        startCoord = robot->getPosition()[1];
+                    }
+                 }
+                break;
+        case 11: if (abs(pointY - robot->getPosition()[1]) > 0.13)     //dla 2 = 0.13, dla 5 = 0.5
+                    robot->driveRobot(2);
+               else if ((startCoord < pointY && robot->getPosition()[1] < pointY) || (startCoord > pointY && robot->getPosition()[1] > pointY))
+                    robot->driveRobot(0.3);
+               else
+                    mode = 4;
+            break;
+        case 12: if (robot->turnRobotToAngle(startAngle, targetAngle))
+            mode = 13;
+            break;
+        case 13: if (abs(pointX - robot->getPosition()[0]) > 0.13)     //dla 2 = 0.13, dla 5 = 0.5
+            robot->driveRobot(2);
+               else if ((startCoord < pointX && robot->getPosition()[0] < pointX) || (startCoord > pointX && robot->getPosition()[0] > pointX))
+            robot->driveRobot(0.3);
+               else
+            mode = 4;
+            break;
         }
     }

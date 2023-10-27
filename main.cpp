@@ -3,7 +3,8 @@
 #include <cmath>
 
 int main(int argc, char **argv) {
-    CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
+    //CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
+    CleaningRobot* cr = new CleaningRobot();
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);   
     
@@ -14,17 +15,23 @@ int main(int argc, char **argv) {
         const float* lidarScan = cr->getLidarScan();    // pobranie aktualnych danych z lidara
         std::cout << *(lidarScan + 199) << std::endl;
  
-        cr->refreshDisplay(lidarScan);
-            
-        controller->checkMap();                 // sprawdzanie warunków otwarcia i zamkniêcia mapy
-        controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
-        controller->chooseMode(lidarScan);      // wybór trybu pracy robota
+        if (!controller->isCleaning()) {
+            cr->refreshDisplay(lidarScan);
 
-        if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened()) {
-            map->createMap();
-            cr->drawMap(map->getMap(), map->getGrid());
+            controller->checkMap();                 // sprawdzanie warunków otwarcia i zamkniêcia mapy
+            controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
+            controller->chooseMode(lidarScan);      // wybór trybu pracy robota
+
+            if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened()) {
+                map->createMap();
+                cr->drawMap(map->getMap(), map->getGrid());
+                controller->startCleaning();
+            }
         }
-
+        else 
+            controller->chooseMode(lidarScan);
+        //controller->dist(1, 1);
+        
         cr->refreshSensorValues();
     }
     delete cr, map, controller;
