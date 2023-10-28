@@ -218,6 +218,16 @@
         return true;
     }
 
+    void RobotController::optimizePath() {
+        for (int i = 0; i < path.size() - 2; i++) {
+            if ((path[i][0] == path[i + 1][0] && path[i + 1][0] == path[i + 2][0]) || (path[i][1] == path[i + 1][1] && path[i + 1][1] == path[i + 2][1])) {
+                path.erase(path.begin() + i + 1);
+                i--;
+            }
+        }
+        //path.erase(path.begin() + 1);
+    }
+
     void RobotController::planPath() {
         std::vector <std::vector<int>> localGrid = map->getGrid();
         double currentX = -1;
@@ -242,6 +252,7 @@
         while (chooseNext(currentGridX, currentGridY, currentX, currentY, localGrid)) {           
             path.push_back({ currentX, currentY });
         }
+        optimizePath();
 
         std::cout << "sciezka " << std::endl;
         for (int i = 0; i < path.size(); i++) {   

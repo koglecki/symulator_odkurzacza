@@ -41,6 +41,8 @@ public:
 
     void planPath();
 
+    void optimizePath();
+
     int chooseWay(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY);
 
     void convertCoords(double &x, double &y);
