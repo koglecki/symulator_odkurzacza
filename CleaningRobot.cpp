@@ -159,7 +159,20 @@
     }
 
     bool CleaningRobot::turnRobotToAngle(double startAngle, double goalAngle) {      //obrót do konketnego po³o¿enia robota
+        //if (startAngle > 6.2)
+            //startAngle = -2 * pi + startAngle;
         double angle = goalAngle - startAngle;
+        if (angle > pi) {
+            angle = -2 * pi + angle;
+        }
+        else if (angle < -pi) {
+            angle = 2 * pi + angle;
+        }
+        if (angle > 0 && startAngle > pi && startAngle + angle > 2 * pi)
+            goalAngle += 2 * pi;
+        else if (angle < 0 && startAngle < pi && startAngle + angle < 0)   //!!
+            goalAngle -= 2 * pi;
+
         if (angle == 0 || (angle > 0 && position[2] > goalAngle) || (angle < 0 && position[2] < goalAngle)) {
             stopRobot();                                    //zatrzymywanie robota po obrocie
             if (poseSensor[0] - prevPoseSensor[0] == 0) {
@@ -171,13 +184,13 @@
             }
         }
         else if (position[2] <= goalAngle - 0.25 || position[2] >= goalAngle + 0.25) {
-            if (angle >= 0)                                 //pe³na prêdkoœæ obrotu
+            if (angle > 0)                                 //pe³na prêdkoœæ obrotu
                 setDriveParameters(-1, 1);
             else
                 setDriveParameters(1, -1);
         }
-        else if ((angle >= 0 && position[2] > goalAngle - 0.25) || (angle < 0 && position[2] < startAngle + angle + 0.25)) {
-            if (angle >= 0)                                 //zmniejszona prêdkoœæ obrotu
+        else if ((angle > 0 && position[2] > goalAngle - 0.25) || (angle < 0 && position[2] < startAngle + angle + 0.25)) {
+            if (angle > 0)                                 //zmniejszona prêdkoœæ obrotu
                 setDriveParameters(-0.05, 0.05);
             else
                 setDriveParameters(0.05, -0.05);

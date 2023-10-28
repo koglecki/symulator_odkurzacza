@@ -83,7 +83,7 @@
             if (x < robot->getPosition()[0])
                 angle = pi;
             else
-                angle = 0;
+                angle = 2 * pi;
         }
 
         return angle;
@@ -96,7 +96,7 @@
         y = (y - (double)map->getMap().size() / 2) / -100;
     }
 
-    int RobotController::chooseWay(bool* equalValues, int currentGridX, int currentGridY) {
+    int RobotController::chooseWay(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY) {
          if (equalValues[0]) {
              if (map->getObsTransformGrid()[currentGridY][currentGridX - 1] != 30)
                  equalValues[0] = false;
@@ -114,9 +114,37 @@
                  equalValues[3] = false;
          }
 
+         int counter = 0;
          for (int i = 0; i < 4; i++) {
-              if (equalValues[i])       // jeszcze preferowanie jazdy prosto!!!!!!!!!!!
-                  return i;
+             if (equalValues[i])
+                 counter++;
+         }
+
+         if (counter == 1) {
+             for (int i = 0; i < 4; i++) {
+                 if (equalValues[i])
+                     return i;
+             }
+         }
+         else {
+             if (path.size() > 1 && path[path.size() - 2][1] == currentY && (equalValues[0] || equalValues[2])) {  // je¿eli y jest sta³e i ruch jest horyzontalny
+                 if (equalValues[0])
+                     return 0;
+                 else
+                     return 2;
+             }
+             else if (path.size() > 1 && path[path.size() - 2][0] == currentX && (equalValues[1] || equalValues[3])) {  // je¿eli x jest sta³e i ruch jest wertykalny
+                 if (equalValues[1])
+                     return 1;
+                 else
+                     return 3;
+             }
+             else {
+                 for (int i = 0; i < 4; i++) {
+                     if (equalValues[i])
+                         return i;
+                 }
+             }
          }
         //std::cout << "eqq " << equalValues[0] << " " << equalValues[1] << " " << equalValues[2] << " " << equalValues[3] << std::endl << std::endl;
     }
@@ -170,7 +198,7 @@
         }
 
         if (isEqualValue)
-            direction = chooseWay(equalValues, currentGridX, currentGridY);
+            direction = chooseWay(equalValues, currentGridX, currentGridY, currentX, currentY);
 
         switch (direction) {
         case 0: currentGridX -= 1;              

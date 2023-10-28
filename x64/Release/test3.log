@@ -1,11 +1,21 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: Katalog pośredni (x64\Release\) zawiera pliki udostępnione z innego projektu (test3.vcxproj). Może to spowodować niepoprawne zachowanie podczas oczyszczania i ponownej kompilacji.
+  CleaningRobot.cpp
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(62,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(62,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(63,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(63,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(90,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(90,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(91,84): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(91,45): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(106,48): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\CleaningRobot.cpp(106,37): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
   RobotController.cpp
-C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\RobotController.cpp(208,26): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
-C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\RobotController.cpp(209,26): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
-  main.cpp
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\RobotController.cpp(236,26): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\RobotController.cpp(237,26): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
   Trwa generowanie kodu
-  6 of 929 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  4 of 929 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    4 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Zakończono generowanie kodu
   test3.vcxproj -> C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\simulator.exe
