@@ -22,15 +22,15 @@ int main(int argc, char **argv) {
             controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
             controller->chooseMode(lidarScan);      // wybór trybu pracy robota
 
-            if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened()) {
-                map->createMap();
+            if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
+                map->createMap(cr->getPosition()[0], cr->getPosition()[1]);
                 cr->drawMap(map->getMap(), map->getGrid());
                 controller->startCleaning();
-            }
+                controller->planPath();
+            }   // mo¿e bool pathGenerated??
         }
         else 
             controller->chooseMode(lidarScan);
-        //controller->dist(1, 1);
         
         cr->refreshSensorValues();
     }

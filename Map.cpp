@@ -51,7 +51,7 @@
         if (!isPoint(x, y))
             points.push_back({x, y});
     }
-    void Map::createMap() {     // tworzenie mapy (siatki zajêtoœci), true = przeszkoda
+    void Map::createMap(double x, double y) {     // tworzenie mapy (siatki zajêtoœci), true = przeszkoda
         double minX = 0;
         double maxX = 0;
         double minY = 0;
@@ -87,7 +87,7 @@
         }
 
         optimizeMap();
-        createGrid();
+        createGrid(x, y);
     }
 
     void Map::optimizeMap() {
@@ -121,9 +121,9 @@
         }
     }
 
-    void Map::createGrid() {
-        int xsize = (map[0].size() - 20) / 35;
-        int ysize = (map.size() - 20) / 35;
+    void Map::createGrid(double x, double y) {
+        int xsize = (map[0].size() - 10) / 35;
+        int ysize = (map.size() - 10) / 35;
 
         std::vector<std::vector<int>> v(ysize, std::vector<int>(xsize, -1));
         grid = v;
@@ -146,14 +146,21 @@
 
             }
         }
-        calculateGrid();       
+        calculateGrid(x, y);       
     }
 
-    void Map::calculateGrid() {
-        int poseX = 0;
-        int poseY = 0;
+    void Map::calculateGrid(double x, double y) {
+        int poseX = round(x * 100) + map[0].size() / 2;        // mo¿e byæ do poprawy
+        int poseY = -round(y * 100) + map.size() / 2;
+        
+        poseX = (poseX - 10) / 35;
+        poseY = (poseY - 10) / 35;
+        std::cout << "xxxddd " << poseX << "    yyyyyyyy " << poseY << std::endl;
 
         grid[poseY][poseX] = 0;
+        std::vector<std::vector<int>> copy1;
+        copy1 = grid;
+
         bool isFound = true;
         int i = 0;
         while (isFound) {
@@ -174,7 +181,101 @@
                 }
             }
             i++;
-        }      
+        }
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                if (grid[g][h] == -1)
+                    grid[g][h] = -2;
+            }
+        }
+
+        for (int g = 0; g < copy1.size(); g++) {        //copy1 = obstacle transform
+            for (int h = 0; h < copy1[g].size(); h++) {
+                if (copy1[g][h] != -2) {
+                    if (g == 0 || h == 0 || g == copy1.size() - 1 || h == copy1[0].size() - 1)
+                        copy1[g][h] = 30;
+                    else if (copy1[g - 1][h - 1] == -2 || copy1[g - 1][h] == -2 || copy1[g - 1][h + 1] == -2 || copy1[g][h - 1] == -2
+                        || copy1[g][h + 1] == -2 || copy1[g + 1][h - 1] == -2 || copy1[g + 1][h] == -2 || copy1[g + 1][h + 1] == -2)
+                        copy1[g][h] = 30;
+                    else
+                        copy1[g][h] = 10;
+                }
+            }
+        }
+        obstacleTransformGrid = copy1;
+
+        std::cout << "grid pomo: " << std::endl;
+        for (int g = 0; g < copy1.size(); g++) {
+            for (int h = 0; h < copy1[g].size(); h++) {
+                //if (grid[g][h] == -2)
+                    //std::cout << "1 ";
+                //else
+                std::cout << copy1[g][h] << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        std::vector<std::vector<int>> copy2;
+        copy2 = copy1;
+
+        std::vector<std::vector<int>> copy3;
+        copy3 = grid;
+
+        std::vector<std::vector<int>> open;
+        open = grid;      //-1,  -2 tam gdzie przeszkody
+        for (int g = 0; g < open.size(); g++) {
+            for (int h = 0; h < open[g].size(); h++) {
+                if (open[g][h] != -2 && open[g][h] != 0)
+                    open[g][h] = -1;
+            }
+        }
+
+        //4 0
+        int nr = 0;
+        int cost = -1;
+        int mincost = -1;
+        open[4][0] = -3;    //-3 otw, -4 zam
+        if (4 != 0 && open[4 - 1][0] != -2) {
+            open[4 - 1][0] = -3;
+            nr = 1;
+            cost = grid[4 - 1][0] + copy1[4 - 1][0];
+            mincost = cost;
+        }
+        if (4 != open.size() - 1 && open[4 + 1][0] != -2) {
+            open[4 + 1][0] = -3;
+            cost = grid[4 + 1][0] + copy1[4 + 1][0];
+            if (mincost == -1 || cost < mincost) {
+                mincost = cost;
+                nr = 2;
+            }
+        }
+        if (0 != 0 && open[4][0 - 1] != -2) {
+            open[4][0 - 1] = -3;
+            cost = grid[4][0-1] + copy1[4 ][0-1];
+            if (mincost == -1 || cost < mincost) {
+                mincost = cost;
+                nr = 3;
+            }
+        }
+        if (0 != open[0].size() && open[4][0 + 1] != -2) {
+            open[4][0 + 1] = -3;
+            cost = grid[4][0+1] + copy1[4][0+1];
+            if (mincost == -1 || cost < mincost) {
+                mincost = cost;
+                nr = 4;
+            }
+        }
+
+        //std::cout << "numer " << nr << "wartosc " << mincost << std::endl;
+        
+    }
+
+    void Map::setGrid(int x, int y, int val) {
+        grid[y][x] = val;
+    }
+
+    std::vector <std::vector<int>> Map::getObsTransformGrid() {
+        return obstacleTransformGrid;
     }
 
     std::vector <std::vector<double>> Map::getPoints() {

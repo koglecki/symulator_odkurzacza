@@ -12,6 +12,7 @@ private:
     std::vector <std::vector<double>> points;
     std::vector <std::vector<bool>> map;
     std::vector <std::vector<int>> grid;
+    std::vector <std::vector<int>> obstacleTransformGrid;
 
 public:
     void beginMapping();
@@ -28,12 +29,14 @@ public:
     void finishFirstTurn();
     bool isPoint(double x, double y);
     void insertPoint(double x, double y);
-    void createMap();
+    void createMap(double x, double y);
     void optimizeMap();
-    void createGrid();
-    void calculateGrid();
+    void createGrid(double x, double y);
+    void calculateGrid(double x, double y);
     std::vector <std::vector<double>> getPoints();
     std::vector <std::vector<bool>> getMap();
     std::vector <std::vector<int>> getGrid();
+    std::vector <std::vector<int>> getObsTransformGrid();
+    void setGrid(int x, int y, int val);
 };
 #endif
