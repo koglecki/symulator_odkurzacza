@@ -20,6 +20,10 @@
         cleaning = true;
     }
 
+    bool RobotController::isGridFinding() {
+        return gridFinding;
+    }
+
     void RobotController::checkMap() {       //!!!!!!!!!!! to te¿ potem mo¿na zmieniæ
         if (!map->isFirstTurn() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 1 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 1)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
@@ -89,14 +93,114 @@
         return angle;
     }
 
-    void RobotController::convertCoords(double &x, double &y) {
+    void RobotController::convertCoords(double &x, double &y) {     // zmiana koordynatów siatki na rzeczywiste
         x = 27.5 + 35 * x;    // 27.5 = 10 + 17.5 czyli promieñ kratki
         y = 27.5 + 35 * y;
         x = (x - (double)map->getMap()[0].size() / 2) / 100;
         y = (y - (double)map->getMap().size() / 2) / -100;
     }
 
+    bool RobotController::isRoomClean(std::vector <std::vector<int>> grid) {
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                if (grid[g][h] > 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    std::vector <std::vector<int>> RobotController::createLocalWavePropagation(std::vector <std::vector<int>> grid) {       
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                if (grid[g][h] > 0)
+                    grid[g][h] = -1;                
+            }
+        }
+        map->wavePropagation(grid, robot->getPosition()[0], robot->getPosition()[1]);    //zobacz jak z przeszkodami nowymi na œrodku to bd dzia³aæ
+        return grid;
+    }
+
+    std::vector <std::vector<int>> RobotController::findUnvisitedGrids(std::vector <std::vector<int>> grid) {
+        std::vector <std::vector<int>> unvisitedGrids;
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                if (grid[g][h] > 0)
+                    unvisitedGrids.push_back({ h, g });   // koordynaty nieodwiedzonych komórek
+            }       //UWAGA:: co je¿eli lista pusta?????????/
+        }
+        return unvisitedGrids;
+    }
+    
+    int* RobotController::getGoalPoint(std::vector <std::vector<int>> localGrid) {
+        std::vector <std::vector<int>> unvisitedGrids = findUnvisitedGrids(map->getGrid());
+        for (int g = 0; g < unvisitedGrids.size(); g++) {
+            unvisitedGrids[g].push_back(localGrid[unvisitedGrids[g][1]][unvisitedGrids[g][0]]);     // zapisanie wartoœci propagacji nieodwiedzonych komórek
+        }
+        int minValue = 1000;
+        int minGrid = 1000;
+        for (int g = 0; g < unvisitedGrids.size(); g++) {
+            if (unvisitedGrids[g][2] < minValue) {
+                minValue = unvisitedGrids[g][2];
+                minGrid = g;
+            }
+        }   // dodaæ przypadek ¿e 2 lub wiêcej s¹ takie same
+        int coords[2] = { unvisitedGrids[minGrid][0], unvisitedGrids[minGrid][1] }; //x, y
+        return coords;
+    }
+
+    void RobotController::planPathToPoint() {
+        std::vector <std::vector<int>> localGrid = createLocalWavePropagation(map->getGrid());
+        int* goalPoint = getGoalPoint(localGrid);
+        int* startPoint = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1]);
+        //std::cout << "goalPoint =   x = " << goalPoint[0] << ",    y = " << goalPoint[1] << std::endl;
+        //std::cout << "startPoint =   x = " << startPoint[0] << ",    y = " << startPoint[1] << std::endl;
+
+        int currentGridX = goalPoint[0];
+        int currentGridY = goalPoint[1];
+        double currentX = currentGridX;     // wêdrówka od punktu docelowego do startu
+        double currentY = currentGridY;
+        convertCoords(currentX, currentY);
+        path.push_back({ currentX, currentY });
+
+        while (currentGridX != startPoint[0] && currentGridY != startPoint[1]) {
+            findWayToStart(currentGridX, currentGridY, currentX, currentY, localGrid);
+            path.insert(path.begin(), { currentX, currentY });
+        }
+        //optimizePath();
+        gridFinding = false;
+    }
+
+    void RobotController::findWayToStart(int& currentGridX, int& currentGridY, double& currentX, double& currentY, std::vector <std::vector<int>>& localGrid) {
+        int propagationValue = localGrid[currentGridY][currentGridX];
+        if (currentGridX > 0 && localGrid[currentGridY][currentGridX - 1] == propagationValue - 1)     // zachód
+            currentGridX -= 1;       
+        else if (currentGridY > 0 && localGrid[currentGridY - 1][currentGridX] == propagationValue - 1)  // pó³noc
+            currentGridY -= 1;
+        else if (currentGridX < localGrid[0].size() - 1 && localGrid[currentGridY][currentGridX + 1] == propagationValue - 1)    // wschód
+            currentGridX += 1;
+        else if (currentGridY < localGrid.size() - 1 && localGrid[currentGridY + 1][currentGridX] == propagationValue - 1)   // po³udnie
+            currentGridY += 1;
+
+        currentX = currentGridX;
+        currentY = currentGridY;
+        convertCoords(currentX, currentY);
+    }
+
     int RobotController::chooseWay(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY) {
+        if (path.size() > 1 && path[path.size() - 2][1] == currentY && (equalValues[0] || equalValues[2])) {  // je¿eli y jest sta³e i ruch jest horyzontalny
+            if (equalValues[0])
+                return 0;
+            else
+                return 2;
+        }
+        else if (path.size() > 1 && path[path.size() - 2][0] == currentX && (equalValues[1] || equalValues[3])) {  // je¿eli x jest sta³e i ruch jest wertykalny
+            if (equalValues[1])
+                return 1;
+            else
+                return 3;
+        }
+
          if (equalValues[0]) {
              if (map->getObsTransformGrid()[currentGridY][currentGridX - 1] != 30)
                  equalValues[0] = false;
@@ -127,24 +231,11 @@
              }
          }
          else {
-             if (path.size() > 1 && path[path.size() - 2][1] == currentY && (equalValues[0] || equalValues[2])) {  // je¿eli y jest sta³e i ruch jest horyzontalny
-                 if (equalValues[0])
-                     return 0;
-                 else
-                     return 2;
-             }
-             else if (path.size() > 1 && path[path.size() - 2][0] == currentX && (equalValues[1] || equalValues[3])) {  // je¿eli x jest sta³e i ruch jest wertykalny
-                 if (equalValues[1])
-                     return 1;
-                 else
-                     return 3;
-             }
-             else {
                  for (int i = 0; i < 4; i++) {
                      if (equalValues[i])
                          return i;
                  }
-             }
+             
          }
         //std::cout << "eqq " << equalValues[0] << " " << equalValues[1] << " " << equalValues[2] << " " << equalValues[3] << std::endl << std::endl;
     }
@@ -209,7 +300,7 @@
                 break;
         case 3: currentGridY += 1;
                 break;
-        default: return false;
+        default: return false;////
         }
         currentX = currentGridX;
         currentY = currentGridY;
@@ -225,14 +316,13 @@
                 i--;
             }
         }
-        //path.erase(path.begin() + 1);
     }
 
     void RobotController::planPath() {
         std::vector <std::vector<int>> localGrid = map->getGrid();
-        double currentX = -1;
-        double currentY = -1;
-        for (int g = 0; g < localGrid.size(); g++) {
+        double currentX = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0];
+        double currentY = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1];
+        /*for (int g = 0; g < localGrid.size(); g++) {
             for (int h = 0; h < localGrid[g].size(); h++) {
                 if (localGrid[g][h] == 0) {
                     currentX = h;
@@ -242,7 +332,7 @@
             }
             if (currentX != -1)
                 break;
-        }
+        }*/
         int currentGridX = currentX;
         int currentGridY = currentY;
         convertCoords(currentX, currentY);
@@ -252,20 +342,20 @@
         while (chooseNext(currentGridX, currentGridY, currentX, currentY, localGrid)) {           
             path.push_back({ currentX, currentY });
         }
-        optimizePath();
+        //optimizePath();
 
         std::cout << "sciezka " << std::endl;
         for (int i = 0; i < path.size(); i++) {   
             std::cout << path[i][0] << " " << path[i][1] << std::endl;
         }
+
+        gridFinding = false;
+        //map->setGrid(localGrid);    // uwaga!!! to z³e podejœcie przy uwzglêdnianiu przeszkód na œrodku!!!!!
     }
 
     void RobotController::chooseMode(const float* rangeImage) {
         bool obstacleInFront = false;
         bool obstacle = false;
-        
-        //double goalX = 0;
-        //double goalY = 0;
 
         switch (mode) {
             //tryb decyzyjny
@@ -308,7 +398,6 @@
                 }
                 else if (cleaning) {
                     robot->pen->write(1);
-                    bool toPoint = true;
                     if (pathIterator < path.size()) {
                         pointX = path[pathIterator][0];
                         pointY = path[pathIterator][1];
@@ -316,11 +405,30 @@
                             targetAngle = distMax(pointX, pointY);
                             mode = 10;  // dziwne obroty o 360 stopni na dole i obrót o 270 zamiast 90 stopni, i usun¹æ nadmiarowe punkty
                         }
-                        else
-                            pathIterator++;
+                        else {
+                            map->setGridCell(map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0], map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1], -1);
+                            pathIterator++;     // ustawia tylko punkty koñcowe a powinno te¿ wczeœniejsze
+
+                            std::cout << "gridY = " << map->getGrid().size() << ", gridX = " << map->getGrid()[0].size() << std::endl;
+                            for (int g = 0; g < map->getGrid().size(); g++) {
+                                for (int h = 0; h < map->getGrid()[g].size(); h++) {
+                                    //if (grid[g][h] == -2)
+                                        //std::cout << "1 ";
+                                    //else
+                                    std::cout << map->getGrid()[g][h] << " ";
+                                }
+                                std::cout << std::endl;
+                            }
+                        }
                     }
-                    else
-                        mode = 4;
+                    else {
+                        if (isRoomClean(map->getGrid()))
+                            exit(0);
+                        pathIterator = 0;
+                        path.clear();
+                        gridFinding = true;
+                        mode = 4;                      
+                    }
                 }
                 else
                     mode = 4;

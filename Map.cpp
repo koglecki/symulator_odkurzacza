@@ -150,44 +150,10 @@
     }
 
     void Map::calculateGrid(double x, double y) {
-        int poseX = round(x * 100) + map[0].size() / 2;        // mo¿e byæ do poprawy
-        int poseY = -round(y * 100) + map.size() / 2;
-        
-        poseX = (poseX - 10) / 35;
-        poseY = (poseY - 10) / 35;
-        std::cout << "xxxddd " << poseX << "    yyyyyyyy " << poseY << std::endl;
-
-        grid[poseY][poseX] = 0;
         std::vector<std::vector<int>> copy1;
         copy1 = grid;
 
-        bool isFound = true;
-        int i = 0;
-        while (isFound) {
-            isFound = false;
-            for (int g = 0; g < grid.size(); g++) {
-                for (int h = 0; h < grid[g].size(); h++) {
-                    if (grid[g][h] == i) {
-                        isFound = true;
-                        if (g > 0 && grid[g - 1][h] == -1)
-                            grid[g - 1][h] = i + 1;
-                        if (h > 0 && grid[g][h - 1] == -1)
-                            grid[g][h - 1] = i + 1;
-                        if (g < grid.size() - 1 && grid[g + 1][h] == -1)
-                            grid[g + 1][h] = i + 1;
-                        if (h < grid[g].size() - 1 && grid[g][h + 1] == -1)
-                            grid[g][h + 1] = i + 1;
-                    }
-                }
-            }
-            i++;
-        }
-        for (int g = 0; g < grid.size(); g++) {
-            for (int h = 0; h < grid[g].size(); h++) {
-                if (grid[g][h] == -1)
-                    grid[g][h] = -2;
-            }
-        }
+        wavePropagation(grid, x, y);
 
         for (int g = 0; g < copy1.size(); g++) {        //copy1 = obstacle transform
             for (int h = 0; h < copy1[g].size(); h++) {
@@ -270,8 +236,70 @@
         
     }
 
-    void Map::setGrid(int x, int y, int val) {
+    int* Map::getCurrentCell(double positionX, double positionY) {
+        int poseX = round(positionX * 100) + map[0].size() / 2;        // mo¿e byæ do poprawy
+        int poseY = -round(positionY * 100) + map.size() / 2;
+
+        poseX = (poseX - 10) / 35;
+        poseY = (poseY - 10) / 35;
+        //std::cout << "xxxddd " << poseX << "    yyyyyyyy " << poseY << std::endl;
+        int currentCell[2] = { poseX, poseY };
+        return currentCell;
+    }
+
+    void Map::wavePropagation(std::vector <std::vector<int>> &grid, double positionX, double positionY) {
+        int* currentCell = getCurrentCell(positionX, positionY);
+        
+        grid[currentCell[1]][currentCell[0]] = 0;
+        bool isFound = true;
+        int i = 0;
+        while (isFound) {
+            isFound = false;
+            for (int g = 0; g < grid.size(); g++) {
+                for (int h = 0; h < grid[g].size(); h++) {
+                    if (grid[g][h] == i) {
+                        isFound = true;
+                        if (g > 0 && grid[g - 1][h] == -1)
+                            grid[g - 1][h] = i + 1;
+                        if (h > 0 && grid[g][h - 1] == -1)
+                            grid[g][h - 1] = i + 1;
+                        if (g < grid.size() - 1 && grid[g + 1][h] == -1)
+                            grid[g + 1][h] = i + 1;
+                        if (h < grid[g].size() - 1 && grid[g][h + 1] == -1)
+                            grid[g][h + 1] = i + 1;
+                    }
+                }
+            }
+            i++;
+        }
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                if (grid[g][h] == -1)
+                    grid[g][h] = -2;
+            }
+        }
+    }
+
+    bool Map::areNeighbourCellsOccupied(double x, double y) {
+        int* currentCell = getCurrentCell(x, y);
+        if (currentCell[0] > 0 && grid[currentCell[1]][currentCell[0] - 1] > 0)      // zachód
+            return false;
+        if (currentCell[1] > 0 && grid[currentCell[1] - 1][currentCell[0]] > 0)  // pó³noc
+            return false;
+        if (currentCell[0] < grid[0].size() - 1 && grid[currentCell[1]][currentCell[0] + 1] > 0)    // wschód
+            return false;        
+        if (currentCell[1] < grid.size() - 1 && grid[currentCell[1] + 1][currentCell[0]] > 0)   // po³udnie
+            return false;
+
+        return true;
+    }
+
+    void Map::setGridCell(int x, int y, int val) {
         grid[y][x] = val;
+    }
+
+    void Map::setGrid(std::vector <std::vector<int>> newGrid) {
+        grid = newGrid;
     }
 
     std::vector <std::vector<int>> Map::getObsTransformGrid() {

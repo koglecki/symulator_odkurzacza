@@ -31,12 +31,16 @@ public:
     void insertPoint(double x, double y);
     void createMap(double x, double y);
     void optimizeMap();
+    bool areNeighbourCellsOccupied(double x, double y);
     void createGrid(double x, double y);
     void calculateGrid(double x, double y);
+    void wavePropagation(std::vector <std::vector<int>>& grid, double positionX, double positionY);
     std::vector <std::vector<double>> getPoints();
     std::vector <std::vector<bool>> getMap();
     std::vector <std::vector<int>> getGrid();
     std::vector <std::vector<int>> getObsTransformGrid();
-    void setGrid(int x, int y, int val);
+    void setGrid(std::vector <std::vector<int>> newGrid);
+    void setGridCell(int x, int y, int val);
+    int* getCurrentCell(double positionX, double positionY);
 };
 #endif
