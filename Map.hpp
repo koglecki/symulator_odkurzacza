@@ -9,6 +9,9 @@ private:
     bool mapOpened = false;                //czy mapa jest otwarta (czy mo¿na j¹ zamkn¹æ)
     bool wallFound = false;            //czy pierwsza œciana zosta³a znaleziona
     bool firstTurn = true;              //czy trwa pierwszy obrót podczas mapowania
+    int mapCorrectionValue = 50;
+    int gridSizeX;
+    int gridSizeY;
     std::vector <std::vector<double>> points;
     std::vector <std::vector<bool>> map;
     std::vector <std::vector<int>> grid;
@@ -20,6 +23,7 @@ public:
     bool isMapping();
     bool isWallFound();
     void setWallFound();
+    void setMapCorrectionValue(int value);
     double* getMapClosurePosition();
     void openMap();
     void closeMap();

@@ -5,8 +5,10 @@
 int main(int argc, char **argv) {
     CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
     //CleaningRobot* cr = new CleaningRobot(1.79, 1.78, 1.5708);
+    //CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
     Map* map = new Map();
-    RobotController* controller = new RobotController(cr, map);   
+    RobotController* controller = new RobotController(cr, map);
+    map->setMapCorrectionValue(40);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;

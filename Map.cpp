@@ -90,13 +90,17 @@
         createGrid(x, y);
     }
 
+    void Map::setMapCorrectionValue(int value) {
+        mapCorrectionValue = value;
+    }
+
     void Map::optimizeMap() {
         int counter = 0;
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map[i].size(); j++) {
                 if (!map[i][j])
                     counter++;
-                else if (map[i][j] && counter <= 50) {
+                else if (map[i][j] && counter <= mapCorrectionValue) {
                     for (int k = 1; k <= counter; k++)
                         map[i][j - k] = true;
                     counter = 0;
@@ -110,9 +114,11 @@
             for (int j = 0; j < map.size(); j++) {
                 if (!map[j][i])
                     counter++;
-                else if (map[j][i] && counter <= 50) {
-                    for (int k = 1; k <= counter; k++)
-                        map[j - k][i] = true;
+                else if (map[j][i] && counter <= mapCorrectionValue) {
+                    for (int k = 1; k <= counter; k++) {
+                        if (j - k >= 0)
+                            map[j - k][i] = true;
+                    }
                     counter = 0;
                 }
                 else
@@ -123,7 +129,13 @@
 
     void Map::createGrid(double x, double y) {
         int xsize = (map[0].size() - 10) / 35;
+        if (double((map[0].size() - 10) / 35) - xsize < 0.15)
+            xsize -= 1;
         int ysize = (map.size() - 10) / 35;
+        if (double((map.size() - 10) / 35) - ysize < 0.15)
+            ysize -= 1;
+        gridSizeX = xsize;
+        gridSizeY = ysize;
 
         std::vector<std::vector<int>> v(ysize, std::vector<int>(xsize, -1));
         grid = v;
@@ -239,9 +251,13 @@
     int* Map::getCurrentCell(double positionX, double positionY) {
         int poseX = round(positionX * 100) + map[0].size() / 2;        // mo¿e byæ do poprawy
         int poseY = -round(positionY * 100) + map.size() / 2;
-
+        
         poseX = (poseX - 10) / 35;
+        if (poseX >= gridSizeX)
+            poseX = gridSizeX - 1;
         poseY = (poseY - 10) / 35;
+        if (poseY >= gridSizeY)
+            poseY = gridSizeY - 1;
         //std::cout << "xxxddd " << poseX << "    yyyyyyyy " << poseY << std::endl;
         int currentCell[2] = { poseX, poseY };
         return currentCell;
