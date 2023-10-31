@@ -153,8 +153,19 @@
         std::vector <std::vector<int>> localGrid = createLocalWavePropagation(map->getGrid());
         int* goalPoint = getGoalPoint(localGrid);
         int* startPoint = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1]);
-        //std::cout << "goalPoint =   x = " << goalPoint[0] << ",    y = " << goalPoint[1] << std::endl;
-        //std::cout << "startPoint =   x = " << startPoint[0] << ",    y = " << startPoint[1] << std::endl;
+        std::cout << "goalPoint =   x = " << goalPoint[0] << ",    y = " << goalPoint[1] << std::endl;
+        std::cout << "startPoint =   x = " << startPoint[0] << ",    y = " << startPoint[1] << std::endl;
+
+        std::cout << "gridY = " << localGrid.size() << ", gridX = " << localGrid[0].size() << std::endl;
+        for (int g = 0; g < localGrid.size(); g++) {
+            for (int h = 0; h < localGrid[g].size(); h++) {
+                //if (grid[g][h] == -2)
+                    //std::cout << "1 ";
+                //else
+                std::cout << localGrid[g][h] << " ";
+            }
+            std::cout << std::endl;
+        }
 
         int currentGridX = goalPoint[0];
         int currentGridY = goalPoint[1];
@@ -163,11 +174,16 @@
         convertCoords(currentX, currentY);
         path.push_back({ currentX, currentY });
 
-        while (currentGridX != startPoint[0] && currentGridY != startPoint[1]) {
+        while (!(currentGridX == startPoint[0] && currentGridY == startPoint[1])) {
             findWayToStart(currentGridX, currentGridY, currentX, currentY, localGrid);
             path.insert(path.begin(), { currentX, currentY });
         }
-        //optimizePath();
+        optimizePath();
+
+        std::cout << "sciezka " << std::endl;
+        for (int i = 0; i < path.size(); i++) {
+            std::cout << path[i][0] << " " << path[i][1] << std::endl;
+        }
         gridFinding = false;
     }
 
@@ -185,6 +201,39 @@
         currentX = currentGridX;
         currentY = currentGridY;
         convertCoords(currentX, currentY);
+    }
+
+    void RobotController::occupyVisitedCells() {
+        int* currentPoint = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1]);
+        int* startPoint;
+        if (pathIterator == 0)
+            startPoint = map->getCurrentCell(path[pathIterator][0], path[pathIterator][1]);
+        else
+            startPoint = map->getCurrentCell(path[pathIterator - 1][0], path[pathIterator - 1][1]);
+
+        map->setGridCell(currentPoint[0], currentPoint[1], -1);
+        if (startPoint[0] == currentPoint[0]) {     // je¿eli œcie¿ka idzie pionowo wzd³u¿ y
+            while (currentPoint[1] != startPoint[1]) {
+                if (startPoint[1] > currentPoint[1])
+                    currentPoint[1] += 1;
+                else if (startPoint[1] < currentPoint[1])
+                    currentPoint[1] -= 1;
+                else
+                    break;
+                map->setGridCell(currentPoint[0], currentPoint[1], -1);
+            }
+        }
+        else {                                                  // je¿eli œcie¿ka idzie poziomo wzd³u¿ x
+            while (currentPoint[0] != startPoint[0]) {
+                if (startPoint[0] > currentPoint[0])
+                    currentPoint[0] += 1;
+                else if (startPoint[0] < currentPoint[0])
+                    currentPoint[0] -= 1;
+                else
+                    break;
+                map->setGridCell(currentPoint[0], currentPoint[1], -1);
+            }
+        }
     }
 
     int RobotController::chooseWay(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY) {
@@ -342,7 +391,7 @@
         while (chooseNext(currentGridX, currentGridY, currentX, currentY, localGrid)) {           
             path.push_back({ currentX, currentY });
         }
-        //optimizePath();
+        optimizePath();
 
         std::cout << "sciezka " << std::endl;
         for (int i = 0; i < path.size(); i++) {   
@@ -406,7 +455,8 @@
                             mode = 10;  // dziwne obroty o 360 stopni na dole i obrót o 270 zamiast 90 stopni, i usun¹æ nadmiarowe punkty
                         }
                         else {
-                            map->setGridCell(map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0], map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1], -1);
+                            //map->setGridCell(map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0], map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1], -1);
+                            occupyVisitedCells();
                             pathIterator++;     // ustawia tylko punkty koñcowe a powinno te¿ wczeœniejsze
 
                             std::cout << "gridY = " << map->getGrid().size() << ", gridX = " << map->getGrid()[0].size() << std::endl;
