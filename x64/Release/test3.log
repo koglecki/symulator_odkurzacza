@@ -1,8 +1,14 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: Katalog pośredni (x64\Release\) zawiera pliki udostępnione z innego projektu (test3.vcxproj). Może to spowodować niepoprawne zachowanie podczas oczyszczania i ponownej kompilacji.
-  main.cpp
+  Map.cpp
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\Map.cpp(95,22): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\Map.cpp(96,22): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\Map.cpp(191,45): warning C4267: "inicjowanie": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\Map.cpp(196,42): warning C4267: "inicjowanie": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\Map.cpp(283,19): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\Map.cpp(284,19): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
   Trwa generowanie kodu
   2 of 1067 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    3 functions had inline decision re-evaluated but remain unchanged
   Zakończono generowanie kodu
   test3.vcxproj -> C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\simulator.exe

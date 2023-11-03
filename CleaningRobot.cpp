@@ -201,8 +201,8 @@
         }
 
         display->setColor(0x00ffff);
-        for (int i = 10; i < map.size(); i += 35) {
-            for (int j = 10; j < map[i].size(); j += 35) {
+        for (int i = 5; i < map.size(); i += 35) {
+            for (int j = 5; j < map[i].size(); j += 35) {
                  display->drawRectangle(j + 50, i + 51, 35, 35);
             }
         }

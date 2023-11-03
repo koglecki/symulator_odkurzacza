@@ -3,7 +3,7 @@
 #include <cmath>
 
 int main(int argc, char **argv) {
-    CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
+    CleaningRobot* cr = new CleaningRobot(0.51, 1.01, 3.14159);
     //CleaningRobot* cr = new CleaningRobot(1.79, 1.78, 1.5708);
     //CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
     Map* map = new Map();

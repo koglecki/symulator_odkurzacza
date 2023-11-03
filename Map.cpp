@@ -148,14 +148,15 @@
                 else
                     counter = 0;
             }
-            if (counter == map[i].size() && displacement) {
-                counter = 0;
+            if (counter == map[i].size()) {
                 map.erase(map.begin() + i);
-                displacementY++;
+                if (displacement)
+                    displacementY++;
                 i--;
             }
             else
                 displacement = false;
+            counter = 0;
         }
         counter = 0;
         displacement = true;
@@ -173,28 +174,32 @@
                 else
                     counter = 0;
             }
-            if (counter == map.size() && displacement) {
-                counter = 0;
+            if (counter == map.size()) {
                 for (int g = 0; g < map.size(); g++)
                     map[g].erase(map[g].begin() + j);
-                displacementX++;
+                if (displacement)
+                    displacementX++;
                 j--;
             }
             else
                 displacement = false;
+            counter = 0;
         }
     }
 
     void Map::createGrid(double x, double y) {
         int xsize = (map[0].size() - 5) / 35;
-        if (double((map[0].size() - 5) / 35) - xsize < 0.15)        // je¿eli ostatnia kratka jest bli¿ej ni¿ 5 jednostek od œciany
-            xsize -= 1;
+        std::cout << xsize;
+        std::cout << std::endl << (map[0].size() - 5) / 35;
+        //if (double((map[0].size() - 5) / 35) - xsize < 0.15)        // je¿eli ostatnia kratka jest bli¿ej ni¿ 5 jednostek od œciany
+            //xsize -= 1;
         int ysize = (map.size() - 5) / 35;
-        if (double((map.size() - 5) / 35) - ysize < 0.15)
-            ysize -= 1;
+        //if (double((map.size() - 5) / 35) - ysize < 0.15)
+            //ysize -= 1;
         gridSizeX = xsize;
         gridSizeY = ysize;
-
+        std::cout << "gridSizeX = " << xsize << "   gridSizeY = " << ysize << std::endl;
+        std::cout << "gridSizeX = " << gridSizeX << "   gridSizeY = " << gridSizeY << std::endl;
         std::vector<std::vector<int>> v(ysize, std::vector<int>(xsize, -1));
         grid = v;
 
@@ -277,8 +282,8 @@
     int* Map::getCurrentCell(double positionX, double positionY) {
         int poseX = round(positionX * 100) + arenaX / 2;        // mo¿e byæ do poprawy map[0].size() / 2;
         int poseY = -round(positionY * 100) + arenaY / 2;           // pozycja robota na mapie
-        std::cout << "positionX = " << positionX << "   poseX = " << poseX << std::endl;
-        std::cout << "positionY = " << positionY << "   poseY = " << poseY << std::endl;
+        //std::cout << "positionX = " << positionX << "   poseX = " << poseX << std::endl;
+        //std::cout << "positionY = " << positionY << "   poseY = " << poseY << std::endl;
         poseX = (poseX - 5 - displacementX) / 35;
         if (poseX >= gridSizeX)
             poseX = gridSizeX - 1;
@@ -289,7 +294,7 @@
         int* currentCell = new int[2];
         currentCell[0] = poseX;
         currentCell[1] = poseY;
-        std::cout << "currX = " << currentCell[0] << "  , currY = " << currentCell[1] << std::endl;
+        //std::cout << "currX = " << currentCell[0] << "  , currY = " << currentCell[1] << std::endl;
         return currentCell;
     }
 
