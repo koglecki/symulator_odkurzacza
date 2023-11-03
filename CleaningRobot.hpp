@@ -43,6 +43,8 @@ public:
 
     double* getPosition();
 
+    void drawRobot();
+
     double* getPrevPoseSensor();
 
     double* getPoseSensor();
@@ -53,7 +55,7 @@ public:
 
     void setDriveParameters(double leftVoltage, double rightVoltage);
 
-    void calculatePosition();
+    void calculatePosition(bool clearDisp);
 
     void refreshDisplay(const float* rangeImage);
 
@@ -73,7 +75,7 @@ public:
 
     void clearDisplay();
 
-    void drawMap(std::vector <std::vector<bool>> map, std::vector <std::vector<int>> grid);
+    void drawMap(std::vector <std::vector<bool>> map);
 
     ~CleaningRobot();
 };

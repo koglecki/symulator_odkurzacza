@@ -32,7 +32,7 @@
             map->closeMap();
             map->finishMapping();
             mode = 4;
-            robot->clearDisplay();
+            //robot->clearDisplay();
             //map->printMap();
 
         }
@@ -179,6 +179,8 @@
             findWayToStart(currentGridX, currentGridY, currentX, currentY, localGrid);
             path.insert(path.begin(), { currentX, currentY });
         }
+        delete startPoint;
+
         optimizePath();
 
         std::cout << "sciezka " << std::endl;
@@ -235,6 +237,7 @@
                 map->setGridCell(currentPoint[0], currentPoint[1], -1);
             }
         }
+        delete currentPoint, startPoint;
     }
 
     int RobotController::chooseWay(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY) {

@@ -63,7 +63,7 @@
         display->fillOval(position[0] * 100 + displayWidth / 2, -position[1] * 100 + displayHeight / 2, 15, 15);
     }
 
-    void CleaningRobot::calculatePosition() {
+    void CleaningRobot::calculatePosition(bool clearDisp) {
         poseSensor[0] = left_position->getValue();
         poseSensor[1] = right_position->getValue();        // pobranie wartoœci z czujnika pozycji
 
@@ -77,7 +77,8 @@
         double trasform_matrix[3] = { s * cos(position[2]), s * sin(position[2]), deltatheta };      // macierz przekszta³cenia
         double new_position[3] = { position[0] + trasform_matrix[0], position[1] + trasform_matrix[1], position[2] + trasform_matrix[2] };       // nowa pozycja
 
-        clearRobotDisplay();
+        if (clearDisp)
+            clearRobotDisplay();
         position[0] = new_position[0];
         position[1] = new_position[1];
         position[2] = new_position[2];
@@ -85,10 +86,14 @@
         std::cout << "Pozycja:   x = " << position[0] << " , y = " << position[1] << " , theta = " << position[2] << std::endl;
     }
 
-    void CleaningRobot::refreshDisplay(const float* rangeImage) {
+    void CleaningRobot::drawRobot() {
         display->setColor(0xff0000);
         display->drawOval(position[0] * 100 + displayWidth / 2, -position[1] * 100 + displayHeight / 2, 15, 15);   // nowa pozycja robota na ekranie
         display->fillOval(position[0] * 100 + displayWidth / 2, -position[1] * 100 + displayHeight / 2, 15, 15);
+    }
+
+    void CleaningRobot::refreshDisplay(const float* rangeImage) {
+        drawRobot();
 
         for (int i = 0; i < lidar->getHorizontalResolution(); i++) {     // wizualizacja odczytów lidara
             if (*(rangeImage + i) < 1)
@@ -190,43 +195,17 @@
         display->fillRectangle(0, 0, displayWidth, displayHeight);
     }
 
-    void CleaningRobot::drawMap(std::vector <std::vector<bool>> map, std::vector <std::vector<int>> grid) {      // rysowanie zapisanej mapy
+    void CleaningRobot::drawMap(std::vector <std::vector<bool>> map) {      // rysowanie zapisanej mapy
+        clearDisplay();
+
         display->setColor(0xffff00);
    
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map[i].size(); j++) {
                 if (map[i][j])
-                    display->drawPixel(j + 50, i + 51);
+                    display->drawPixel(j + 50, i + 50);
             }           
         }
-
-        display->setColor(0x00ffff);
-        for (int i = 5; i < map.size(); i += 35) {
-            for (int j = 5; j < map[i].size(); j += 35) {
-                 display->drawRectangle(j + 50, i + 51, 35, 35);
-            }
-        }
-        std::cout << "gridY = " << grid.size() << ", gridX = " << grid[0].size() << std::endl;
-        for (int g = 0; g < grid.size(); g++) {
-            for (int h = 0; h < grid[g].size(); h++) {
-                //if (grid[g][h] == -2)
-                    //std::cout << "1 ";
-                //else
-                    std::cout << grid[g][h] << " ";
-            }
-            std::cout << std::endl;
-        }
-
-        /*std::cout << std::endl << "map" << std::endl;
-        for (int g = 45; g < 80; g++) {
-            for (int h = 335; h < 370; h++) {
-                if (map[g][h])
-                    std::cout << "1 ";
-                else
-                    std::cout << "0 ";
-            }
-            std::cout << std::endl;
-        }*/
     }
 
     CleaningRobot::~CleaningRobot() {

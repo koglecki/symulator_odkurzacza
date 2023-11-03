@@ -3,7 +3,7 @@
 #include <cmath>
 
 int main(int argc, char **argv) {
-    CleaningRobot* cr = new CleaningRobot(0.51, 1.01, 3.14159);
+    CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
     //CleaningRobot* cr = new CleaningRobot(1.79, 1.78, 1.5708);
     //CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
     Map* map = new Map();
@@ -14,22 +14,29 @@ int main(int argc, char **argv) {
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;
 
-        cr->calculatePosition();                // obliczanie nowej pozycji robota
+        if (controller->isCleaning())
+            cr->calculatePosition(0);                // obliczanie nowej pozycji robota
+        else
+            cr->calculatePosition(1);
+
         const float* lidarScan = cr->getLidarScan();    // pobranie aktualnych danych z lidara
         std::cout << *(lidarScan + 199) << std::endl;
  
         if (!controller->isCleaning()) {
-            cr->refreshDisplay(lidarScan);
+            if (map->isFirstTurn() || map->isMapping() || map->isMapOpened()) {
+                cr->refreshDisplay(lidarScan);
 
-            controller->checkMap();                 // sprawdzanie warunków otwarcia i zamkniêcia mapy
-            controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
-            controller->chooseMode(lidarScan);      // wybór trybu pracy robota
-
-            if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
+                controller->checkMap();                 // sprawdzanie warunków otwarcia i zamkniêcia mapy
+                controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
+                controller->chooseMode(lidarScan);      // wybór trybu pracy robota
+            }
+            else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
+                controller->startCleaning();
                 map->createMap(cr->getPosition()[0], cr->getPosition()[1]);
-                cr->drawMap(map->getMap(), map->getGrid());
-                controller->startCleaning();               
-            }   // mo¿e bool pathGenerated??
+                cr->drawMap(map->getMap());
+            }
+            else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened())
+                controller->chooseMode(lidarScan);           
         }
         else if (!map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())
             controller->planPath();

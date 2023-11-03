@@ -46,8 +46,8 @@ public:
     void createMap(double x, double y);
     void optimizeMap();
     bool areNeighbourCellsOccupied(double x, double y);
-    void createGrid(double x, double y);
-    void calculateGrid(double x, double y);
+    void createGrid();
+    void calculateObstacleTransformGrid();
     void wavePropagation(std::vector <std::vector<int>>& grid, double positionX, double positionY);
     std::vector <std::vector<double>> getPoints();
     std::vector <std::vector<bool>> getMap();
@@ -56,5 +56,6 @@ public:
     void setGrid(std::vector <std::vector<int>> newGrid);
     void setGridCell(int x, int y, int val);
     int* getCurrentCell(double positionX, double positionY);
+    ~Map();
 };
 #endif
