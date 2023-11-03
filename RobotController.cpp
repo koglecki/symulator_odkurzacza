@@ -94,10 +94,11 @@
     }
 
     void RobotController::convertCoords(double &x, double &y) {     // zmiana koordynatów siatki na rzeczywiste
-        x = 27.5 + 35 * x;    // 27.5 = 10 + 17.5 czyli promieñ kratki
-        y = 27.5 + 35 * y;
-        x = (x - (double)map->getMap()[0].size() / 2) / 100;
-        y = (y - (double)map->getMap().size() / 2) / -100;
+        x = 22.5 + map->getDispX() + 35 * x;    // 22.5 = 5 + 17.5 czyli promieñ kratki
+        y = 22.5 + map->getDispY() + 35 * y;//y = (y2 - 22.5 - dispY) / 35
+        x = (x - map->getArenaX() / 2) / 100;
+        y = (y - map->getArenaY() / 2) / -100;
+        //int poseY = -round(positionY * 100) + arenaY / 2;         //positionY = (poseY - arenaY/2) / -100
     }
 
     bool RobotController::isRoomClean(std::vector <std::vector<int>> grid) {

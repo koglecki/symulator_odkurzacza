@@ -9,6 +9,7 @@ int main(int argc, char **argv) {
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);
     map->setMapCorrectionValue(40);
+    map->setArenaSize(500, 400);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;

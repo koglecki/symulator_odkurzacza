@@ -12,10 +12,15 @@ private:
     int mapCorrectionValue = 50;
     int gridSizeX;
     int gridSizeY;
+    int displacementX = 0;
+    int displacementY = 0;
     std::vector <std::vector<double>> points;
+    bool** globalMap;
     std::vector <std::vector<bool>> map;
     std::vector <std::vector<int>> grid;
     std::vector <std::vector<int>> obstacleTransformGrid;
+    int arenaX = 400;
+    int arenaY = 400;
 
 public:
     void beginMapping();
@@ -27,6 +32,11 @@ public:
     double* getMapClosurePosition();
     void openMap();
     void closeMap();
+    int getDispX();
+    int getDispY();
+    int getArenaX();
+    int getArenaY();
+    void setArenaSize(int x, int y);
     bool isMapOpened();
     void setMapClosurePosition(double x, double y);
     bool isFirstTurn();

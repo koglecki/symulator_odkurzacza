@@ -71,23 +71,54 @@
         maxX = round(maxX * 100);
         minY = round(minY * 100);
         maxY = round(maxY * 100);
+        std::cout << "maxY " << maxY << std::endl;
         
         int xsize = int(maxX - minX);
         int ysize = int(maxY - minY);
-        std::vector<std::vector<bool>> v(ysize, std::vector<bool>(xsize, false));
-        map = v;
+        //std::vector<std::vector<bool>> v(arenaY, std::vector<bool>(arenaX, false));
+        globalMap = new bool* [arenaY];
+        for (int i = 0; i < arenaY; i++) {
+            globalMap[i] = new bool[arenaX];
+            
+            //std::cout << std::endl;
+        }
+        for (int i = 0; i < arenaY; i++) {
+            for (int j = 0; j < arenaX; j++)
+                globalMap[i][j] = false;
+
+            //std::cout << std::endl;
+        }
+        
         
         for (int j = 0; j < points.size(); j++) {
-            if (int(-round(points[j][1] * 100) + maxY) == ysize)
-                map[-round(points[j][1] * 100) + maxY - 1][round(points[j][0] * 100) - minX] = true;
-            else if (int(round(points[j][0] * 100) - minX) == xsize)
-                map[-round(points[j][1] * 100) + maxY][round(points[j][0] * 100) - minX - 1] = true;
+            //std::cout << j << std::endl;
+            int wyrY = -round(points[j][1] * 100) + arenaY / 2;
+            int wyrX = round(points[j][0] * 100) + arenaX / 2;
+            //std::cout << -round(points[j][1] * 100) + arenaY / 2 - 1 << std::endl;
+            if (wyrY >= arenaY) {
+                globalMap[arenaY - 1][wyrX] = true;
+                //globalMap[int(-round(points[j][1] * 100)) + int(arenaY / 2) - 1][round(points[j][0] * 100) - arenaX / 2] = true;
+                //std::cout << "lol " << int(-round(points[j][1] * 100)) + int(arenaY / 2) - 1 << std::endl;
+                
+            }
+            else if (wyrY < 0)
+                globalMap[0][wyrX] = true;
+            else if (wyrX >= arenaX) {
+                globalMap[wyrY][arenaX - 1] = true;
+                //std::cout << "lol " << arenaX - 1 << std::endl;
+            }
+            else if (wyrX < 0)
+                globalMap[wyrY][0] = true;
             else
-                map[-round(points[j][1] * 100) + maxY][round(points[j][0] * 100) - minX] = true;
+                globalMap[wyrY][wyrX] = true;
+            //for (int f = 0; f < globalMap[0].size(); f++)
+                //std::cout << globalMap[399][f] << " ";
+            //std::cout << std::endl;
         }
 
         optimizeMap();
         createGrid(x, y);
+        std::cout << "rozmiar mapy: x = " << map[0].size() << "   , y = " << map.size() << std::endl;
     }
 
     void Map::setMapCorrectionValue(int value) {
@@ -95,6 +126,15 @@
     }
 
     void Map::optimizeMap() {
+        std::vector<std::vector<bool>> v(arenaY, std::vector<bool>(arenaX, false));
+        map = v;
+        for (int i = 0; i < map.size(); i++) {
+            for (int j = 0; j < map[i].size(); j++)
+                map[i][j] = globalMap[i][j];
+        }
+
+        bool displacement = true;
+
         int counter = 0;
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map[i].size(); j++) {
@@ -108,31 +148,49 @@
                 else
                     counter = 0;
             }
+            if (counter == map[i].size() && displacement) {
+                counter = 0;
+                map.erase(map.begin() + i);
+                displacementY++;
+                i--;
+            }
+            else
+                displacement = false;
         }
         counter = 0;
-        for (int i = 0; i < map[0].size(); i++) {
-            for (int j = 0; j < map.size(); j++) {
-                if (!map[j][i])
+        displacement = true;
+        for (int j = 0; j < map[0].size(); j++) {
+            for (int i = 0; i < map.size(); i++) {
+                if (!map[i][j])
                     counter++;
-                else if (map[j][i] && counter <= mapCorrectionValue) {
+                else if (map[i][j] && counter <= mapCorrectionValue) {
                     for (int k = 1; k <= counter; k++) {
-                        if (j - k >= 0)
-                            map[j - k][i] = true;
+                        if (i - k >= 0)
+                            map[i - k][j] = true;
                     }
                     counter = 0;
                 }
                 else
                     counter = 0;
             }
+            if (counter == map.size() && displacement) {
+                counter = 0;
+                for (int g = 0; g < map.size(); g++)
+                    map[g].erase(map[g].begin() + j);
+                displacementX++;
+                j--;
+            }
+            else
+                displacement = false;
         }
     }
 
     void Map::createGrid(double x, double y) {
-        int xsize = (map[0].size() - 10) / 35;
-        if (double((map[0].size() - 10) / 35) - xsize < 0.15)
+        int xsize = (map[0].size() - 5) / 35;
+        if (double((map[0].size() - 5) / 35) - xsize < 0.15)        // je¿eli ostatnia kratka jest bli¿ej ni¿ 5 jednostek od œciany
             xsize -= 1;
-        int ysize = (map.size() - 10) / 35;
-        if (double((map.size() - 10) / 35) - ysize < 0.15)
+        int ysize = (map.size() - 5) / 35;
+        if (double((map.size() - 5) / 35) - ysize < 0.15)
             ysize -= 1;
         gridSizeX = xsize;
         gridSizeY = ysize;
@@ -144,8 +202,8 @@
         for (int g = 0; g < grid.size(); g++) {
             for (int h = 0; h < grid[g].size(); h++) {
                 gridFull = false;
-                for (int i = 10 + g * 35; i < 45 + g * 35; i++) {
-                    for (int j = 10 + h * 35; j < 45 + h * 35; j++) {
+                for (int i = 5 + g * 35; i < 40 + g * 35; i++) {
+                    for (int j = 5 + h * 35; j < 40 + h * 35; j++) {
                         if (map[i][j]) {
                             grid[g][h] = -2;
                             gridFull = true;
@@ -158,6 +216,7 @@
 
             }
         }
+
         calculateGrid(x, y);       
     }
 
@@ -192,81 +251,54 @@
             }
             std::cout << std::endl;
         }
+    }
 
-        std::vector<std::vector<int>> copy2;
-        copy2 = copy1;
+    void Map::setArenaSize(int x, int y) {
+        arenaX = x;
+        arenaY = y;
+    }
 
-        std::vector<std::vector<int>> copy3;
-        copy3 = grid;
+    int Map::getDispX() {
+        return displacementX;
+    }
 
-        std::vector<std::vector<int>> open;
-        open = grid;      //-1,  -2 tam gdzie przeszkody
-        for (int g = 0; g < open.size(); g++) {
-            for (int h = 0; h < open[g].size(); h++) {
-                if (open[g][h] != -2 && open[g][h] != 0)
-                    open[g][h] = -1;
-            }
-        }
+    int Map::getDispY() {
+        return displacementY;
+    }
 
-        //4 0
-        int nr = 0;
-        int cost = -1;
-        int mincost = -1;
-        open[4][0] = -3;    //-3 otw, -4 zam
-        if (4 != 0 && open[4 - 1][0] != -2) {
-            open[4 - 1][0] = -3;
-            nr = 1;
-            cost = grid[4 - 1][0] + copy1[4 - 1][0];
-            mincost = cost;
-        }
-        if (4 != open.size() - 1 && open[4 + 1][0] != -2) {
-            open[4 + 1][0] = -3;
-            cost = grid[4 + 1][0] + copy1[4 + 1][0];
-            if (mincost == -1 || cost < mincost) {
-                mincost = cost;
-                nr = 2;
-            }
-        }
-        if (0 != 0 && open[4][0 - 1] != -2) {
-            open[4][0 - 1] = -3;
-            cost = grid[4][0-1] + copy1[4 ][0-1];
-            if (mincost == -1 || cost < mincost) {
-                mincost = cost;
-                nr = 3;
-            }
-        }
-        if (0 != open[0].size() && open[4][0 + 1] != -2) {
-            open[4][0 + 1] = -3;
-            cost = grid[4][0+1] + copy1[4][0+1];
-            if (mincost == -1 || cost < mincost) {
-                mincost = cost;
-                nr = 4;
-            }
-        }
+    int Map::getArenaX() {
+        return arenaX;
+    }
 
-        //std::cout << "numer " << nr << "wartosc " << mincost << std::endl;
-        
+    int Map::getArenaY() {
+        return arenaY;
     }
 
     int* Map::getCurrentCell(double positionX, double positionY) {
-        int poseX = round(positionX * 100) + map[0].size() / 2;        // mo¿e byæ do poprawy
-        int poseY = -round(positionY * 100) + map.size() / 2;
-        
-        poseX = (poseX - 10) / 35;
+        int poseX = round(positionX * 100) + arenaX / 2;        // mo¿e byæ do poprawy map[0].size() / 2;
+        int poseY = -round(positionY * 100) + arenaY / 2;           // pozycja robota na mapie
+        std::cout << "positionX = " << positionX << "   poseX = " << poseX << std::endl;
+        std::cout << "positionY = " << positionY << "   poseY = " << poseY << std::endl;
+        poseX = (poseX - 5 - displacementX) / 35;
         if (poseX >= gridSizeX)
             poseX = gridSizeX - 1;
-        poseY = (poseY - 10) / 35;
+        poseY = (poseY - 5 - displacementY) / 35;      //!!!!! niejednolite rozmiary
         if (poseY >= gridSizeY)
             poseY = gridSizeY - 1;
         //std::cout << "xxxddd " << poseX << "    yyyyyyyy " << poseY << std::endl;
-        int currentCell[2] = { poseX, poseY };
+        int* currentCell = new int[2];
+        currentCell[0] = poseX;
+        currentCell[1] = poseY;
+        std::cout << "currX = " << currentCell[0] << "  , currY = " << currentCell[1] << std::endl;
         return currentCell;
     }
 
     void Map::wavePropagation(std::vector <std::vector<int>> &grid, double positionX, double positionY) {
         int* currentCell = getCurrentCell(positionX, positionY);
         
+        //std::cout << "currX = " << currentCell[0] << "  , currY = " << currentCell[1] << std::endl;
         grid[currentCell[1]][currentCell[0]] = 0;
+        delete currentCell;
         bool isFound = true;
         int i = 0;
         while (isFound) {
