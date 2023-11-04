@@ -21,6 +21,8 @@ private:
     std::vector <std::vector<int>> obstacleTransformGrid;
     int arenaX = 400;
     int arenaY = 400;
+    double obsClosurePosition[2] = { -1000, 0 };
+    bool obsOpened = false;
 
 public:
     void beginMapping();
@@ -30,8 +32,13 @@ public:
     void setWallFound();
     void setMapCorrectionValue(int value);
     double* getMapClosurePosition();
+    double* getObsClosurePosition();
+    void setObsClosurePosition(double x, double y);
     void openMap();
     void closeMap();
+    void openObs();
+    void closeObs();
+    bool isObsOpened();
     int getDispX();
     int getDispY();
     int getArenaX();

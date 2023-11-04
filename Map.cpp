@@ -20,18 +20,34 @@
     double* Map::getMapClosurePosition() {
         return mapClosurePosition;
     }
+    double* Map::getObsClosurePosition() {
+        return obsClosurePosition;
+    }
     void Map::openMap() {
         mapOpened = true;
     }
     void Map::closeMap() {
         mapOpened = false;
     }
+    void Map::openObs() {
+        obsOpened = true;
+    }
+    void Map::closeObs() {
+        obsOpened = false;
+    }
     bool Map::isMapOpened() {
         return mapOpened;
+    }
+    bool Map::isObsOpened() {
+        return obsOpened;
     }
     void Map::setMapClosurePosition(double x, double y) {
         mapClosurePosition[0] = x;
         mapClosurePosition[1] = y;
+    }
+    void Map::setObsClosurePosition(double x, double y) {
+        obsClosurePosition[0] = x;
+        obsClosurePosition[1] = y;
     }
     bool Map::isFirstTurn() {
         return firstTurn;

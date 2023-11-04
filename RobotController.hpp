@@ -9,17 +9,19 @@ private:
     CleaningRobot* robot;
     Map* map;
     bool cleaning = false;
+    bool xd = true;
+    bool obstacleAvoidance = false;
     double startAngle = 0;
     double distance = 0;
     double targetAngle = 0;
-    bool xd = true;
-    bool xd2 = true;
     double pointX = 1;  // wspó³rzêdne rzeczywiste do których udaje siê robot
     double pointY = 1;
     double startCoord = 0;
     bool gridFinding = false;
     std::vector <std::vector<double>> path;
     int pathIterator = 0;
+    double cond1 = 0;
+    double cond2 = 0;
 
 public:
     RobotController(CleaningRobot* cr, Map* m);
@@ -28,7 +30,17 @@ public:
 
     int getMode();
 
+    void checkObs();
+
     bool isCleaning();
+
+    bool isObstacleAvoidance();
+
+    bool isObstacleOnLidar(const float* rangeImage);
+
+    bool checkObstacleTransform();
+
+    void Lidar(const float* rangeImage);
 
     bool isGridFinding();
 
@@ -41,6 +53,8 @@ public:
     void findWayToStart(int& currentGridX, int& currentGridY, double& currentX, double& currentY, std::vector <std::vector<int>>& localGrid);
 
     void checkObstacles(const float* rangeImage);
+
+    void checkObstacles2(const float* rangeImage);
 
     void chooseMode(const float* rangeImage);
 

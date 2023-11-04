@@ -24,6 +24,16 @@
         return gridFinding;
     }
 
+    void RobotController::checkObs() {
+        if (map->getObsClosurePosition()[0] != -1000 && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 0.2 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 0.2)))
+            map->openObs();            //mo¿liwoœæ zamkniêcia pêtli mapy
+
+        if (map->isObsOpened() && (abs(map->getObsClosurePosition()[0] - robot->getPosition()[0]) < 0.1) && (abs(map->getObsClosurePosition()[1] - robot->getPosition()[1]) < 0.1)) {
+            map->closeObs();
+            mode = 4;
+        }
+    }
+
     void RobotController::checkMap() {       //!!!!!!!!!!! to te¿ potem mo¿na zmieniæ
         if (!map->isFirstTurn() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 1 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 1)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
@@ -38,9 +48,37 @@
         }
     }
 
+    void RobotController::checkObstacles2(const float* rangeImage) {    // próbne
+        bool obstacles = false;     //czy jakieœ przeszkody s¹ w zasiêgu lidara
+       
+        if (mode == 2 || mode == 3 || mode == 7 || mode == 8 || mode == 9) {
+            if (*(rangeImage + 199) > 0.22 && obstacleAvoidance && mode != 7 && mode != 8 && mode != 9)
+                mode = 4;
+            else {
+                for (int i = 0; i < 200; i++) {
+                    if (*(rangeImage + i) < 1) {
+                        obstacles = true;
+                        if (mode != 7 && mode != 8 && mode != 9)
+                            mode = 3;
+                        
+                    }
+                    if (*(rangeImage + i) < 0.18) {
+                        mode = 4;
+                        break;
+                    }
+                    //std::cout << i << "->" << *(rangeImage + i) << " ";
+                }
+                //std::cout << std::endl;
+            }
+        }
+
+        if (mode == 3 && obstacles == false)      //je¿eli robot jedzie i nie ma przeszkód = przyœpiesz
+            mode = 2;
+    }
+
     void RobotController::checkObstacles(const float* rangeImage) {      //!!!!!!!!!!!!!!!!!!!!!!!!!!! to mo¿e poprawiæ
         bool obstacles = false;     //czy jakieœ przeszkody s¹ w zasiêgu lidara
-
+        
         if (mode == 2 || mode == 3 || mode == 7 || mode == 8 || mode == 9) {
             if (*(rangeImage + 199) > 0.4 && map->isMapping() && mode != 7 && mode != 8 && mode != 9)
                 mode = 4;
@@ -406,9 +444,41 @@
         //map->setGrid(localGrid);    // uwaga!!! to z³e podejœcie przy uwzglêdnianiu przeszkód na œrodku!!!!!
     }
 
+    bool RobotController::isObstacleOnLidar(const float* rangeImage) {
+        for (int i = 0; i < 200; i++) {
+            if (*(rangeImage + i) < 1)
+                return true;
+        }
+        return false;
+    }
+
+    bool RobotController::checkObstacleTransform() {
+        int* currentPoint = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1]);
+        if (map->getObsTransformGrid()[currentPoint[1]][currentPoint[0]] == 30) {
+            delete currentPoint;
+            return true;
+        }
+        delete currentPoint;
+        return false;
+    }
+
+    void RobotController::Lidar(const float* rangeImage) {
+        for (int i = 0; i < 200; i++) {
+            if (*(rangeImage + i) < 0.18) {
+                mode = 4;
+                obstacleAvoidance = true;
+            }
+        }
+    }
+
+    bool RobotController::isObstacleAvoidance() {
+        return obstacleAvoidance;
+    }
+
     void RobotController::chooseMode(const float* rangeImage) {
         bool obstacleInFront = false;
         bool obstacle = false;
+        
 
         switch (mode) {
             //tryb decyzyjny
@@ -434,8 +504,11 @@
                         mode = 9;
                         distance = 0;
                     }
-                    else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) < 0.6 && !obstacle)    //robot skierowany do œciany -> podje¿d¿anie bli¿ej œciany
+                    else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) < 0.6 && !obstacle) {    //robot skierowany do œciany -> podje¿d¿anie bli¿ej œciany
                         mode = 8;
+                        cond1 = 0.6;
+                        cond2 = 0.4;
+                    }
                     else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.45 && *(rangeImage + 199) < 0.6) {     //wiêkszy obrót do œciany w przypadku uskoku na œcianie
                         mode = 5;
                         targetAngle = -0.3;
@@ -447,6 +520,49 @@
                     else {
                         mode = 5;     //lekki obrót od œciany
                         targetAngle = 0.1;
+                    }
+                }
+                else if (cleaning && obstacleAvoidance) {
+                    if (xd) {
+                        mode = 12;
+                        map->setObsClosurePosition(robot->getPosition()[0], robot->getPosition()[1]);
+                        xd = false;
+                    }
+                    else {
+                        for (int i = 0; i < 200; i++) {
+                            if (*(rangeImage + i) < 0.18) {
+                                obstacle = true;
+                                if (i > 90 && i < 110) {
+                                    obstacleInFront = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (obstacleInFront) {    //przy rogu / œcianie -> obrót o 90 stopni
+                            mode = 5;
+                            targetAngle = pi / 2;
+                        }
+                        else if (*(rangeImage + 199) > 0.27 && !obstacle) {    //przy wewnêtrznym rogu -> szukanie œciany na nowo
+                            mode = 9;
+                            distance = 0;
+                        }
+                        else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.22 && *(rangeImage + 199) < 0.27 && !obstacle) {    //robot skierowany do œciany -> podje¿d¿anie bli¿ej œciany
+                            mode = 8;
+                            cond1 = 0.27;
+                            cond2 = 0.22;
+                        }
+                        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.24 && *(rangeImage + 199) < 0.27) {     //wiêkszy obrót do œciany w przypadku uskoku na œcianie
+                            mode = 5;
+                            targetAngle = -0.3;
+                        }
+                        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.22 && *(rangeImage + 199) <= 0.24) {   //lekki obrót do œciany
+                            mode = 5;
+                            targetAngle = -0.1;
+                        }
+                        else {
+                            mode = 5;     //lekki obrót od œciany
+                            targetAngle = 0.1;
+                        }
                     }
                 }
                 else if (cleaning) {
@@ -498,15 +614,20 @@
         case 5: if (robot->turnRobot(startAngle, targetAngle))      // obrót robota o podany k¹t
                     mode = 3;
                 break;
-        case 6: if (robot->turnRobot(startAngle, -pi / 2))
-                    mode = 7;
+        case 6: if (robot->turnRobot(startAngle, -pi / 2)) {
+            mode = 7;
+            if (obstacleAvoidance)
+                cond1 = 0.27;
+            else
+                cond1 = 0.6;
+        }
                 break;
-        case 7: if (*(rangeImage + 199) > 0.6)
+        case 7: if (*(rangeImage + 199) > cond1)//0.6
                     robot->driveRobot(0.5);
                 else
                     mode = 4;
                 break;
-        case 8: if (*(rangeImage + 199) < 0.6 && *(rangeImage + 199) > 0.4)       // powolna jazda do pewnej wartoœci lidara
+        case 8: if (*(rangeImage + 199) < cond1 && *(rangeImage + 199) > cond2)//0.6 0.4       // powolna jazda do pewnej wartoœci lidara
                     robot->driveRobot(0.5);
                 else
                     mode = 4;
@@ -529,17 +650,26 @@
                     }
                  }
                 break;
-        case 11: if (abs(pointY - robot->getPosition()[1]) > 0.13)     //dla 2 = 0.13, dla 5 = 0.5
+        case 11: if (abs(pointY - robot->getPosition()[1]) > 0.55 && !isObstacleOnLidar(rangeImage))
+                    robot->driveRobot(5);
+                else if (abs(pointY - robot->getPosition()[1]) > 0.13)     //dla 2 = 0.13, dla 5 = 0.5
                     robot->driveRobot(2);
                else if ((startCoord < pointY && robot->getPosition()[1] < pointY) || (startCoord > pointY && robot->getPosition()[1] > pointY))
                     robot->driveRobot(0.3);
                else
                     mode = 4;
             break;
-        case 13: if (abs(pointX - robot->getPosition()[0]) > 0.13)     //dla 2 = 0.13, dla 5 = 0.5
-            robot->driveRobot(2);
+        case 13: if (abs(pointX - robot->getPosition()[0]) > 0.55 && !isObstacleOnLidar(rangeImage))
+                    robot->driveRobot(5);          
+                else if (abs(pointX - robot->getPosition()[0]) > 0.13)     //dla 2 = 0.13, dla 5 = 0.5
+                    robot->driveRobot(2);
                else if ((startCoord < pointX && robot->getPosition()[0] < pointX) || (startCoord > pointX && robot->getPosition()[0] > pointX))
             robot->driveRobot(0.3);
+               else
+            mode = 4;
+            break;
+        case 12: if (*(rangeImage + 199) > 0.2)
+            robot->turnRobot(startAngle, 2 * pi);
                else
             mode = 4;
             break;

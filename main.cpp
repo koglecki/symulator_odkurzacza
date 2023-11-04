@@ -3,13 +3,13 @@
 #include <cmath>
 
 int main(int argc, char **argv) {
-    CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
+    //CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
     //CleaningRobot* cr = new CleaningRobot(1.79, 1.78, 1.5708);
-    //CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
+    CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);
     map->setMapCorrectionValue(40);
-    map->setArenaSize(500, 400);
+    map->setArenaSize(400, 400);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;
@@ -41,9 +41,17 @@ int main(int argc, char **argv) {
         else if (!map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())
             controller->planPath();
         else if (map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())
-            controller->planPathToPoint();      
-        else 
+            controller->planPathToPoint();    
+        else if (controller->isCleaning() && controller->isObstacleAvoidance()) {
+            //controller->checkObs();
+            controller->checkObstacles2(lidarScan);
             controller->chooseMode(lidarScan);
+        }
+        else {
+            if (!controller->checkObstacleTransform())
+                controller->Lidar(lidarScan);
+            controller->chooseMode(lidarScan);
+        }
         
         cr->refreshSensorValues();
     }
