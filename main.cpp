@@ -43,9 +43,12 @@ int main(int argc, char **argv) {
         else if (map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())
             controller->planPathToPoint();    
         else if (controller->isCleaning() && controller->isObstacleAvoidance()) {
-            //controller->checkObs();
+            controller->checkObs();
             controller->checkObstacles2(lidarScan);
             controller->chooseMode(lidarScan);
+            if (!controller->xdd() && !map->isObstacling() && !map->isObsOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
+                controller->setObstacleAvoidance(false);
+            }
         }
         else {
             if (!controller->checkObstacleTransform())

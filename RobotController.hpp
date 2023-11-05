@@ -28,6 +28,8 @@ public:
 
     void setMode(int m);
 
+    bool xdd();//////////////
+
     int getMode();
 
     void checkObs();
@@ -35,6 +37,8 @@ public:
     bool isCleaning();
 
     bool isObstacleAvoidance();
+
+    void setObstacleAvoidance(bool obs);
 
     bool isObstacleOnLidar(const float* rangeImage);
 

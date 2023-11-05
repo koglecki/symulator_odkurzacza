@@ -23,11 +23,15 @@ private:
     int arenaY = 400;
     double obsClosurePosition[2] = { -1000, 0 };
     bool obsOpened = false;
+    bool obstacling = false;
 
 public:
     void beginMapping();
     void finishMapping();
+    void beginObstacling();
+    void finishObstacling();
     bool isMapping();
+    bool isObstacling();
     bool isWallFound();
     void setWallFound();
     void setMapCorrectionValue(int value);

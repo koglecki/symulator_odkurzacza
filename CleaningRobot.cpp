@@ -125,7 +125,9 @@
         double yy = y + (distance * sin(position[2] + pi / 2 - i * (pi / (lidar->getHorizontalResolution() - 1))));
         xx = round(xx * 100) / 100;
         yy = round(yy * 100) / 100;
-        double xy[2] = { xx, yy };
+        double* xy = new double [2];
+        xy[0] = xx;
+        xy[1] = yy;
         return xy;
     }
 

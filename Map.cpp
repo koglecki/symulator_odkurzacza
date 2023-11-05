@@ -8,8 +8,17 @@
     void Map::finishMapping() {
         mapping = false;
     }
+    void Map::beginObstacling() {
+        obstacling = true;
+    }
+    void Map::finishObstacling() {
+        obstacling = false;
+    }
     bool Map::isMapping() {
         return mapping;
+    }
+    bool Map::isObstacling() {
+        return obstacling;
     }
     bool Map::isWallFound() {
         return wallFound;
@@ -97,6 +106,7 @@
             else
                 globalMap[coordY][coordX] = true;
         }
+        points.clear();
 
         optimizeMap();
         createGrid();

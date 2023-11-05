@@ -8,6 +8,10 @@
         mode = m;
     }
 
+    bool RobotController::xdd() {
+        return xd;
+    }
+
     int RobotController::getMode() {
         return mode;
     }
@@ -24,13 +28,20 @@
         return gridFinding;
     }
 
-    void RobotController::checkObs() {
-        if (map->getObsClosurePosition()[0] != -1000 && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 0.2 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 0.2)))
-            map->openObs();            //mo¿liwoœæ zamkniêcia pêtli mapy
+    void RobotController::setObstacleAvoidance(bool obs) {
+        obstacleAvoidance = obs;
+    }
 
+    void RobotController::checkObs() {
+        if (map->isObstacling() && (abs(map->getObsClosurePosition()[0] - robot->getPosition()[0]) > 0.2 || abs(map->getObsClosurePosition()[1] - robot->getPosition()[1] > 0.2))) {
+            map->openObs();            //mo¿liwoœæ zamkniêcia pêtli mapy
+            std::cout << "otwarto\n";
+        }
         if (map->isObsOpened() && (abs(map->getObsClosurePosition()[0] - robot->getPosition()[0]) < 0.1) && (abs(map->getObsClosurePosition()[1] - robot->getPosition()[1]) < 0.1)) {
             map->closeObs();
+            map->finishObstacling();
             mode = 4;
+            std::cout << "zamknieto\n";
         }
     }
 
@@ -60,19 +71,21 @@
                         obstacles = true;
                         if (mode != 7 && mode != 8 && mode != 9)
                             mode = 3;
-                        
+                        if (map->isObstacling()) {
+                            double* xy = robot->calculatePoint(*(rangeImage + i), i);
+                            map->insertPoint(xy[0], xy[1]);
+                            delete xy;
+                        }
                     }
                     if (*(rangeImage + i) < 0.18) {
                         mode = 4;
                         break;
                     }
-                    //std::cout << i << "->" << *(rangeImage + i) << " ";
                 }
-                //std::cout << std::endl;
             }
         }
 
-        if (mode == 3 && obstacles == false)      //je¿eli robot jedzie i nie ma przeszkód = przyœpiesz
+        if (mode == 3 && obstacles == false)
             mode = 2;
     }
 
@@ -91,6 +104,7 @@
                         if (map->isMapping()) {
                             double* xy = robot->calculatePoint(*(rangeImage + i), i);
                             map->insertPoint(xy[0], xy[1]);
+                            delete xy;
                         }
                     }
                     if (*(rangeImage + i) < 0.2) {
@@ -526,6 +540,8 @@
                     if (xd) {
                         mode = 12;
                         map->setObsClosurePosition(robot->getPosition()[0], robot->getPosition()[1]);
+                        map->beginObstacling();
+                        std::cout << "zamkniecie: x = " << robot->getPosition()[0] << "   y = " << robot->getPosition()[1] << std::endl;
                         xd = false;
                     }
                     else {
