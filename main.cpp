@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
             }
             else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
                 controller->startCleaning();
-                map->createMap(cr->getPosition()[0], cr->getPosition()[1]);
+                map->createMap(cr->getPosition()[0], cr->getPosition()[1], true);
                 cr->drawMap(map->getMap());
             }
             else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened())
@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
             controller->chooseMode(lidarScan);
             if (!controller->xdd() && !map->isObstacling() && !map->isObsOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
                 controller->setObstacleAvoidance(false);
+                map->createMap(cr->getPosition()[0], cr->getPosition()[1], false);
+                map->printGrid();
             }
         }
         else {

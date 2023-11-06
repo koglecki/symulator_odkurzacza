@@ -30,11 +30,16 @@
 
     void RobotController::setObstacleAvoidance(bool obs) {
         obstacleAvoidance = obs;
+        gridFinding = true;
+        if (isRoomClean(map->getGrid()))
+            exit(0);
+        pathIterator = 0;
+        path.clear();
     }
 
     void RobotController::checkObs() {
         if (map->isObstacling() && (abs(map->getObsClosurePosition()[0] - robot->getPosition()[0]) > 0.2 || abs(map->getObsClosurePosition()[1] - robot->getPosition()[1] > 0.2))) {
-            map->openObs();            //mo¿liwoœæ zamkniêcia pêtli mapy
+            map->openObs();
             std::cout << "otwarto\n";
         }
         if (map->isObsOpened() && (abs(map->getObsClosurePosition()[0] - robot->getPosition()[0]) < 0.1) && (abs(map->getObsClosurePosition()[1] - robot->getPosition()[1]) < 0.1)) {
@@ -468,7 +473,7 @@
 
     bool RobotController::checkObstacleTransform() {
         int* currentPoint = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1]);
-        if (map->getObsTransformGrid()[currentPoint[1]][currentPoint[0]] == 30) {
+        if (map->getObsTransformGrid()[currentPoint[1]][currentPoint[0]] == 30 || map->getObsTransformGrid()[currentPoint[1]][currentPoint[0]] == -2) {
             delete currentPoint;
             return true;
         }
@@ -478,9 +483,11 @@
 
     void RobotController::Lidar(const float* rangeImage) {
         for (int i = 0; i < 200; i++) {
-            if (*(rangeImage + i) < 0.18) {
+            if (*(rangeImage + i) < 0.18) {               
                 mode = 4;
                 obstacleAvoidance = true;
+                occupyVisitedCells();
+                
             }
         }
     }

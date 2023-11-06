@@ -82,7 +82,7 @@
             points.push_back({x, y});
     }
 
-    void Map::createMap(double x, double y) {     // tworzenie mapy (siatki zajêtoœci), true = przeszkoda
+    void Map::newGlobalMap() {
         globalMap = new bool* [arenaY];     // globalna mapa zajêtoœci
         for (int i = 0; i < arenaY; i++)
             globalMap[i] = new bool[arenaX];
@@ -90,6 +90,11 @@
             for (int j = 0; j < arenaX; j++)
                 globalMap[i][j] = false;
         }
+    }
+
+    void Map::createMap(double x, double y, bool newMap) {     // tworzenie mapy (siatki zajêtoœci), true = przeszkoda
+        if (newMap)
+            newGlobalMap();
              
         for (int j = 0; j < points.size(); j++) {           // przypisanie punktów z listy do globalnej mapy
             int coordY = -round(points[j][1] * 100) + arenaY / 2;
@@ -107,11 +112,18 @@
                 globalMap[coordY][coordX] = true;
         }
         points.clear();
-
         optimizeMap();
-        createGrid();
-        calculateObstacleTransformGrid();
-        wavePropagation(grid, x, y);
+
+        if (newMap) {
+            createGrid(true);
+            calculateObstacleTransformGrid();
+            wavePropagation(grid, x, y);
+        }
+        else {
+            createGrid(false);
+            calculateObstacleTransformGrid();
+            fastWavePropagation(grid);
+        }
     }
 
     void Map::optimizeMap() {       // usuwanie niepotrzebnych obszarów na mapie
@@ -176,14 +188,18 @@
         }
     }
 
-    void Map::createGrid() {
+    void Map::createGrid(bool newGrid) {
         int xsize = (map[0].size() - 5) / 35;       // 5 to odleg³oœæ skrajnie lewej kratki od lewej œciany
         int ysize = (map.size() - 5) / 35;          // 35 to rozmiar kratki       
         gridSizeX = xsize;
         gridSizeY = ysize;
         
-        std::vector<std::vector<int>> v(ysize, std::vector<int>(xsize, -1));
-        grid = v;
+        if (newGrid) {
+            std::vector<std::vector<int>> v(ysize, std::vector<int>(xsize, -1));
+            grid = v;
+        }
+        std::vector<std::vector<int>> copy;
+        copy = grid;
 
         bool isGridOccupy;
         for (int g = 0; g < grid.size(); g++) {         // -1 kratka jest wolna
@@ -202,7 +218,17 @@
                 }
 
             }
-        }      
+        }
+
+        if (!newGrid) {         // aktualizacja siatki o nowe przeszkody
+            for (int g = 0; g < copy.size(); g++) {
+                for (int h = 0; h < copy[g].size(); h++) {
+                    if (grid[g][h] == -2)
+                        copy[g][h] = -2;
+                }
+            }
+            grid = copy;
+        }
     }
 
     void Map::calculateObstacleTransformGrid() {
@@ -298,6 +324,69 @@
         }
     }
 
+    void Map::fastWavePropagation(std::vector <std::vector<int>>& grid) {
+        int x = 0;
+        int y = 0;
+        bool isFound = false;
+
+        for (int g = 0; g < grid.size(); g++) {         // losowy punkt startowy fali, który nie jest przeszkod¹
+            for (int h = 0; h < grid[g].size(); h++) {
+                if (grid[g][h] == -1) {
+                    x = h;
+                    y = g;
+                    isFound = true;
+                    break;
+                }
+            }
+            if (isFound)
+                break;
+        }
+
+        std::vector <std::vector<int>> copy = grid;
+        for (int g = 0; g < copy.size(); g++) {         // powrót do reprezentacji zajêtoœci przez przeszkody
+            for (int h = 0; h < copy[g].size(); h++) {
+                if (copy[g][h] != -2)
+                    copy[g][h] = -1;
+            }
+        }
+        copy[y][x] = 0;
+
+        isFound = true;
+        int i = 0;
+        while (isFound) {
+            isFound = false;
+            for (int g = 0; g < copy.size(); g++) {
+                for (int h = 0; h < copy[g].size(); h++) {
+                    if (copy[g][h] == i) {
+                        isFound = true;
+                        if (g > 0 && copy[g - 1][h] == -1)
+                            copy[g - 1][h] = i + 1;
+                        if (h > 0 && copy[g][h - 1] == -1)
+                            copy[g][h - 1] = i + 1;
+                        if (g < copy.size() - 1 && copy[g + 1][h] == -1)
+                            copy[g + 1][h] = i + 1;
+                        if (h < copy[g].size() - 1 && copy[g][h + 1] == -1)
+                            copy[g][h + 1] = i + 1;
+                    }
+                }
+            }
+            i++;
+        }
+        for (int g = 0; g < copy.size(); g++) {
+            for (int h = 0; h < copy[g].size(); h++) {
+                if (copy[g][h] == -1)
+                    copy[g][h] = -2;
+            }
+        }
+
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                if (copy[g][h] == -2)
+                    grid[g][h] = -2;
+            }
+        }
+    }
+
     bool Map::areNeighbourCellsOccupied(double x, double y) {
         int* currentCell = getCurrentCell(x, y);
         if (currentCell[0] > 0 && grid[currentCell[1]][currentCell[0] - 1] > 0)      // zachód
@@ -310,6 +399,15 @@
             return false;
         delete currentCell;
         return true;
+    }
+
+    void Map::printGrid() {
+        for (int g = 0; g < grid.size(); g++) {
+            for (int h = 0; h < grid[g].size(); h++) {
+                std::cout << grid[g][h] << " ";
+            }
+            std::cout << std::endl;
+        }
     }
 
     void Map::setGridCell(int x, int y, int val) {
