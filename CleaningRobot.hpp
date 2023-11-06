@@ -49,6 +49,8 @@ public:
 
     double* getPoseSensor();
 
+    double getLidarRange();
+
     int getTimeStep();
 
     const float* getLidarScan();

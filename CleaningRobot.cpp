@@ -40,6 +40,10 @@
         return poseSensor;
     }
 
+    double CleaningRobot::getLidarRange() {
+        return lidar->getMaxRange();
+    }
+
     int CleaningRobot::getTimeStep() {
         return timeStep;
     }
@@ -96,7 +100,7 @@
         drawRobot();
 
         for (int i = 0; i < lidar->getHorizontalResolution(); i++) {     // wizualizacja odczytów lidara
-            if (*(rangeImage + i) < 1)
+            if (*(rangeImage + i) < getLidarRange())
                 display->setColor(0xFF00FF);
             else
                 display->setColor(0x000000);

@@ -234,14 +234,22 @@
     void Map::calculateObstacleTransformGrid() {
         obstacleTransformGrid = grid;
 
+        /*for (int g = 1; g < copy.size() - 1; g++) {
+            for (int h = 1; h < copy[g].size() - 1; h++) {
+                if (copy[g][h] == -2 && copy[g - 1][h - 1] != -2 && copy[g - 1][h] != -2 && copy[g - 1][h + 1] != -2)
+                    copy[g][h] = -1;
+                    
+            }
+        }*/
+
         for (int g = 0; g < obstacleTransformGrid.size(); g++) {
             for (int h = 0; h < obstacleTransformGrid[g].size(); h++) {
                 if (obstacleTransformGrid[g][h] != -2) {
                     if (g == 0 || h == 0 || g == obstacleTransformGrid.size() - 1 || h == obstacleTransformGrid[0].size() - 1)
                         obstacleTransformGrid[g][h] = 30;
-                    else if (obstacleTransformGrid[g - 1][h - 1] == -2 || obstacleTransformGrid[g - 1][h] == -2 
+                    else if (obstacleTransformGrid[g - 1][h - 1] == -2 || obstacleTransformGrid[g - 1][h] == -2
                         || obstacleTransformGrid[g - 1][h + 1] == -2 || obstacleTransformGrid[g][h - 1] == -2
-                        || obstacleTransformGrid[g][h + 1] == -2 || obstacleTransformGrid[g + 1][h - 1] == -2 
+                        || obstacleTransformGrid[g][h + 1] == -2 || obstacleTransformGrid[g + 1][h - 1] == -2
                         || obstacleTransformGrid[g + 1][h] == -2 || obstacleTransformGrid[g + 1][h + 1] == -2)
                         obstacleTransformGrid[g][h] = 30;
                     else
@@ -249,6 +257,13 @@
                 }
             }
         }
+
+        /*for (int g = 0; g < obstacleTransformGrid.size(); g++) {
+            for (int h = 0; h < obstacleTransformGrid[g].size(); h++) {
+                std::cout << obstacleTransformGrid[g][h] << " ";
+            }
+            std::cout << std::endl;
+        }*/
     }
 
     void Map::setArenaSize(int x, int y) {
