@@ -235,11 +235,14 @@
         while (!(currentGridX == startPoint[0] && currentGridY == startPoint[1])) {
             findWayToStart(currentGridX, currentGridY, currentX, currentY, localGrid);
             path.insert(path.begin(), { currentX, currentY });
-        }
-        delete startPoint;
+        }     
 
         optimizePath();
 
+        if (map->getGrid()[startPoint[1]][startPoint[0]] == -2)
+            path.erase(path.begin());
+
+        delete startPoint;
         std::cout << "sciezka " << std::endl;
         for (int i = 0; i < path.size(); i++) {
             std::cout << path[i][0] << " " << path[i][1] << std::endl;
@@ -588,6 +591,9 @@
                         }
                     }
                 }
+                //else if (cleaning && map->getGrid()[map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1]][map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0]] == -2) {
+                    
+                //}
                 else if (cleaning) {
                     robot->pen->write(1);
                     if (pathIterator < path.size()) {
