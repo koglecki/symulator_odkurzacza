@@ -44,6 +44,10 @@
         return lidar->getMaxRange();
     }
 
+    void CleaningRobot::disablePointCloud() {
+        lidar->disablePointCloud();
+    }
+
     int CleaningRobot::getTimeStep() {
         return timeStep;
     }

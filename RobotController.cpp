@@ -79,7 +79,7 @@
                         if (map->isObstacling()) {
                             double* xy = robot->calculatePoint(*(rangeImage + i), i);
                             map->insertPoint(xy[0], xy[1]);
-                            delete xy;
+                            delete[] xy;
                         }
                     }
                     if (*(rangeImage + i) < 0.2) {
@@ -109,7 +109,7 @@
                         if (map->isMapping()) {
                             double* xy = robot->calculatePoint(*(rangeImage + i), i);
                             map->insertPoint(xy[0], xy[1]);
-                            delete xy;
+                            delete[] xy;
                         }
                     }
                     if (*(rangeImage + i) < 0.2) {
@@ -185,7 +185,7 @@
             for (int h = 0; h < grid[g].size(); h++) {
                 if (grid[g][h] > 0)
                     unvisitedGrids.push_back({ h, g });   // koordynaty nieodwiedzonych komórek
-            }       //UWAGA:: co je¿eli lista pusta?????????/
+            }
         }
         return unvisitedGrids;
     }
@@ -242,7 +242,7 @@
         if (map->getGrid()[startPoint[1]][startPoint[0]] == -2)
             path.erase(path.begin());
 
-        delete startPoint;
+        delete[] startPoint;
         std::cout << "sciezka " << std::endl;
         for (int i = 0; i < path.size(); i++) {
             std::cout << path[i][0] << " " << path[i][1] << std::endl;
@@ -297,7 +297,7 @@
                 map->setGridCell(currentPoint[0], currentPoint[1], -1);
             }
         }
-        delete currentPoint, startPoint;
+        delete[] currentPoint, startPoint;
     }
 
     int RobotController::chooseWay(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY) {
@@ -433,21 +433,13 @@
 
     void RobotController::planPath() {
         std::vector <std::vector<int>> localGrid = map->getGrid();
-        double currentX = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0];
-        double currentY = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1];
-        /*for (int g = 0; g < localGrid.size(); g++) {
-            for (int h = 0; h < localGrid[g].size(); h++) {
-                if (localGrid[g][h] == 0) {
-                    currentX = h;
-                    currentY = g;
-                    break;
-                }
-            }
-            if (currentX != -1)
-                break;
-        }*/
-        int currentGridX = currentX;
-        int currentGridY = currentY;
+        int* currentGrid = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1]);
+        int currentGridX = currentGrid[0];
+        int currentGridY = currentGrid[1];
+        delete[] currentGrid;
+        
+        double currentX = currentGridX;
+        double currentY = currentGridY;
         convertCoords(currentX, currentY);
         path.push_back({currentX, currentY});
         localGrid[currentGridY][currentGridX] = -1;
@@ -477,10 +469,10 @@
     bool RobotController::checkObstacleTransform() {
         int* currentPoint = map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1]);
         if (map->getObsTransformGrid()[currentPoint[1]][currentPoint[0]] == 30 || map->getObsTransformGrid()[currentPoint[1]][currentPoint[0]] == -2) {
-            delete currentPoint;
+            delete[] currentPoint;
             return true;
         }
-        delete currentPoint;
+        delete[] currentPoint;
         return false;
     }
 
@@ -489,8 +481,7 @@
             if (*(rangeImage + i) < 0.18) {               
                 mode = 4;
                 obstacleAvoidance = true;
-                occupyVisitedCells();
-                
+                occupyVisitedCells();               
             }
         }
     }
@@ -543,7 +534,7 @@
                     }
                     else {
                         mode = 5;     //lekki obrót od œciany
-                        targetAngle = 0.1;
+                        targetAngle = 0.11;
                     }
                 }
                 else if (cleaning && obstacleAvoidance) {
@@ -591,11 +582,9 @@
                         }
                     }
                 }
-                //else if (cleaning && map->getGrid()[map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1]][map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0]] == -2) {
-                    
-                //}
                 else if (cleaning) {
                     robot->pen->write(1);
+                    robot->disablePointCloud();
                     if (pathIterator < path.size()) {
                         pointX = path[pathIterator][0];
                         pointY = path[pathIterator][1];
@@ -604,16 +593,12 @@
                             mode = 10;  // dziwne obroty o 360 stopni na dole i obrót o 270 zamiast 90 stopni, i usun¹æ nadmiarowe punkty
                         }
                         else {
-                            //map->setGridCell(map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[0], map->getCurrentCell(robot->getPosition()[0], robot->getPosition()[1])[1], -1);
                             occupyVisitedCells();
-                            pathIterator++;     // ustawia tylko punkty koñcowe a powinno te¿ wczeœniejsze
+                            pathIterator++;
 
                             std::cout << "gridY = " << map->getGrid().size() << ", gridX = " << map->getGrid()[0].size() << std::endl;
                             for (int g = 0; g < map->getGrid().size(); g++) {
                                 for (int h = 0; h < map->getGrid()[g].size(); h++) {
-                                    //if (grid[g][h] == -2)
-                                        //std::cout << "1 ";
-                                    //else
                                     std::cout << map->getGrid()[g][h] << " ";
                                 }
                                 std::cout << std::endl;
@@ -688,6 +673,11 @@
                else
                     mode = 4;
             break;
+        case 12: if (*(rangeImage + 199) > 0.29)
+            robot->turnRobot(startAngle, 2 * pi);
+               else
+            mode = 4;
+            break;
         case 13: if (abs(pointX - robot->getPosition()[0]) > 0.55 && !isObstacleOnLidar(rangeImage))
                     robot->driveRobot(5);          
                 else if (abs(pointX - robot->getPosition()[0]) > 0.13)     //dla 2 = 0.13, dla 5 = 0.5
@@ -696,11 +686,6 @@
             robot->driveRobot(0.3);
                else
             mode = 4;
-            break;
-        case 12: if (*(rangeImage + 199) > 0.29)
-            robot->turnRobot(startAngle, 2 * pi);
-               else
-            mode = 4;
-            break;
+            break;     
         }
     }

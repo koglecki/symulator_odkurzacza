@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
         const float* lidarScan = cr->getLidarScan();    // pobranie aktualnych danych z lidara
         std::cout << *(lidarScan + 199) << std::endl;
  
-        if (!controller->isCleaning()) {
+        if (!controller->isCleaning()) {    // mapowanie
             if (map->isFirstTurn() || map->isMapping() || map->isMapOpened()) {
                 cr->refreshDisplay(lidarScan);
 
@@ -31,18 +31,18 @@ int main(int argc, char **argv) {
                 controller->chooseMode(lidarScan);      // wybór trybu pracy robota
             }
             else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
-                controller->startCleaning();
+                controller->startCleaning();            // je¿eli mapowanie ukoñczone
                 map->createMap(cr->getPosition()[0], cr->getPosition()[1], true);
                 cr->drawMap(map->getMap());
             }
             else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened())
                 controller->chooseMode(lidarScan);           
         }
-        else if (!map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())
+        else if (!map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())    // je¿eli s¹ nieodwiedzone komórki dooko³a
             controller->planPath();
-        else if (map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())
+        else if (map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())     // je¿eli trzeba dojechaæ do nieodwiedzonej komórki
             controller->planPathToPoint();    
-        else if (controller->isCleaning() && controller->isObstacleAvoidance()) {
+        else if (controller->isCleaning() && controller->isObstacleAvoidance()) {   // omijanie i skanowanie przeszkody
             controller->checkObs();
             controller->checkObstacles2(lidarScan);
             controller->chooseMode(lidarScan);
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
                 map->printGrid();
             }
         }
-        else {
+        else {      // obje¿d¿anie pomieszczenia
             if (!controller->checkObstacleTransform())
                 controller->Lidar(lidarScan);
             controller->chooseMode(lidarScan);

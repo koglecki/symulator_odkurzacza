@@ -451,6 +451,6 @@
 
     Map::~Map() {
         for (int i = 0; i < arenaY; i++)
-            delete globalMap[i];
-        delete globalMap;
+            delete [] globalMap[i];
+        delete [] globalMap;
     }

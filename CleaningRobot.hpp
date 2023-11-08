@@ -51,6 +51,8 @@ public:
 
     double getLidarRange();
 
+    void disablePointCloud();
+
     int getTimeStep();
 
     const float* getLidarScan();
