@@ -82,7 +82,7 @@
         deltatheta -= 0.00945 * deltatheta;
         double s = (sleft + sright) / 2;        // droga ogólna robota
 
-        double trasform_matrix[3] = { s * cos(position[2]), s * sin(position[2]), deltatheta };      // macierz przekszta³cenia
+        double trasform_matrix[3] = { s * cos(position[2] + deltatheta / 2), s * sin(position[2] + deltatheta / 2), deltatheta };      // macierz przekszta³cenia
         double new_position[3] = { position[0] + trasform_matrix[0], position[1] + trasform_matrix[1], position[2] + trasform_matrix[2] };       // nowa pozycja
 
         if (clearDisp)
