@@ -94,7 +94,7 @@
             mode = 2;
     }
 
-    void RobotController::checkObstacles(const float* rangeImage) {      //!!!!!!!!!!!!!!!!!!!!!!!!!!! to mo¿e poprawiæ
+    void RobotController::checkObstacles(const float* rangeImage) {      //!!!!!!!!!!!!!!!!!!!!!!!!!! to mo¿e poprawiæ
         bool obstacles = false;     //czy jakieœ przeszkody s¹ w zasiêgu lidara
         
         if (mode == 2 || mode == 3 || mode == 7 || mode == 8 || mode == 9) {
