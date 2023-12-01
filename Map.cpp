@@ -201,19 +201,19 @@
         std::vector<std::vector<int>> copy;
         copy = grid;
 
-        bool isGridOccupy;
+        bool isGridOccupied;
         for (int g = 0; g < grid.size(); g++) {         // -1 kratka jest wolna
             for (int h = 0; h < grid[g].size(); h++) {  // -2 kratka zajêta
-                isGridOccupy = false;
+                isGridOccupied = false;
                 for (int i = 5 + g * 35; i < 40 + g * 35; i++) {
                     for (int j = 5 + h * 35; j < 40 + h * 35; j++) {
                         if (map[i][j]) {
                             grid[g][h] = -2;
-                            isGridOccupy = true;
+                            isGridOccupied = true;
                             break;
                         }
                     }
-                    if (isGridOccupy)
+                    if (isGridOccupied)
                         break;
                 }
 
@@ -369,7 +369,7 @@
         isFound = true;
         int i = 0;
         while (isFound) {
-            isFound = false;
+            isFound = false;    //mo¿na skróciæ???
             for (int g = 0; g < copy.size(); g++) {
                 for (int h = 0; h < copy[g].size(); h++) {
                     if (copy[g][h] == i) {

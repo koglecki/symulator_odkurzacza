@@ -248,6 +248,12 @@
             std::cout << path[i][0] << " " << path[i][1] << std::endl;
         }
         gridFinding = false;
+        totalRotates += path.size() - 1;
+        if ((path[0][0] > path[1][0] && robot->getPosition()[2] > 3 && robot->getPosition()[2] < 3.3)     // zachód
+            || (path[0][1] < path[1][1] && robot->getPosition()[2] > 1.4 && robot->getPosition()[2] < 1.8)  // pó³noc
+            || (path[0][0] < path[1][0] && (robot->getPosition()[2] > 6 || robot->getPosition()[2] < 0.3))  // wschód
+            || (path[0][1] > path[1][1] && robot->getPosition()[2] > 4.5 && robot->getPosition()[2] < 4.9)) // po³udnie
+            totalRotates--;
     }
 
     void RobotController::findWayToStart(int& currentGridX, int& currentGridY, double& currentX, double& currentY, std::vector <std::vector<int>>& localGrid) {
@@ -277,10 +283,14 @@
         map->setGridCell(currentPoint[0], currentPoint[1], -1);
         if (startPoint[0] == currentPoint[0]) {     // je¿eli œcie¿ka idzie pionowo wzd³u¿ y
             while (currentPoint[1] != startPoint[1]) {
-                if (startPoint[1] > currentPoint[1])
+                if (startPoint[1] > currentPoint[1]) {
                     currentPoint[1] += 1;
-                else if (startPoint[1] < currentPoint[1])
+                    distanceTraveled++;
+                }
+                else if (startPoint[1] < currentPoint[1]) {
                     currentPoint[1] -= 1;
+                    distanceTraveled++;
+                }
                 else
                     break;
                 map->setGridCell(currentPoint[0], currentPoint[1], -1);
@@ -288,10 +298,14 @@
         }
         else {                                                  // je¿eli œcie¿ka idzie poziomo wzd³u¿ x
             while (currentPoint[0] != startPoint[0]) {
-                if (startPoint[0] > currentPoint[0])
+                if (startPoint[0] > currentPoint[0]) {
                     currentPoint[0] += 1;
-                else if (startPoint[0] < currentPoint[0])
+                    distanceTraveled++;
+                }
+                else if (startPoint[0] < currentPoint[0]) {
                     currentPoint[0] -= 1;
+                    distanceTraveled++;
+                }
                 else
                     break;
                 map->setGridCell(currentPoint[0], currentPoint[1], -1);
@@ -455,7 +469,12 @@
         }
 
         gridFinding = false;
-        //map->setGrid(localGrid);    // uwaga!!! to z³e podejœcie przy uwzglêdnianiu przeszkód na œrodku!!!!!
+        totalRotates += path.size() - 1;
+        if ((path[0][0] > path[1][0] && robot->getPosition()[2] > 3 && robot->getPosition()[2] < 3.3)     // zachód
+            || (path[0][1] < path[1][1] && robot->getPosition()[2] > 1.4 && robot->getPosition()[2] < 1.8)  // pó³noc
+            || (path[0][0] < path[1][0] && (robot->getPosition()[2] > 6 || robot->getPosition()[2] < 0.3))  // wschód
+            || (path[0][1] > path[1][1] && robot->getPosition()[2] > 4.5 && robot->getPosition()[2] < 4.9)) // po³udnie
+            totalRotates--;
     }
 
     bool RobotController::isObstacleOnLidar(const float* rangeImage) {
@@ -590,7 +609,7 @@
                         pointY = path[pathIterator][1];
                         if (abs(pointY - robot->getPosition()[1]) > 0.006 || abs(pointX - robot->getPosition()[0]) > 0.006) {
                             targetAngle = distMax(pointX, pointY);
-                            mode = 10;  // dziwne obroty o 360 stopni na dole i obrót o 270 zamiast 90 stopni, i usun¹æ nadmiarowe punkty
+                            mode = 10;
                         }
                         else {
                             occupyVisitedCells();
@@ -606,8 +625,11 @@
                         }
                     }
                     else {
-                        if (isRoomClean(map->getGrid()))
+                        if (isRoomClean(map->getGrid())) {
+                            std::cout << "Dlugosc sciezki robota: " << distanceTraveled << std::endl;
+                            std::cout << "Laczna liczba zakretow: " << totalRotates << std::endl;
                             exit(0);
+                        }
                         pathIterator = 0;
                         path.clear();
                         gridFinding = true;

@@ -22,6 +22,8 @@ private:
     int pathIterator = 0;
     double cond1 = 0;
     double cond2 = 0;
+    int distanceTraveled = 0;
+    int totalRotates = 0;
 
 public:
     RobotController(CleaningRobot* cr, Map* m);

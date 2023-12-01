@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);
     map->setMapCorrectionValue(40);
-    map->setArenaSize(500, 400);
+    map->setArenaSize(500, 600);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;
@@ -20,8 +20,7 @@ int main(int argc, char **argv) {
             cr->calculatePosition(1);
 
         const float* lidarScan = cr->getLidarScan();    // pobranie aktualnych danych z lidara
-        std::cout << *(lidarScan + 199) << std::endl;
- 
+
         if (!controller->isCleaning()) {    // mapowanie
             if (map->isFirstTurn() || map->isMapping() || map->isMapOpened()) {
                 cr->refreshDisplay(lidarScan);
