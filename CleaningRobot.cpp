@@ -147,7 +147,7 @@
             return false;
     }
 
-    bool CleaningRobot::turnRobot(double startAngle, double angle) {      //obrót o konkretny k¹t
+    bool CleaningRobot::rotateRobot(double startAngle, double angle) {      //obrót o konkretny k¹t
         if ((angle >= 0 && position[2] > startAngle + angle) || (angle < 0 && position[2] < startAngle + angle)) {
             stopRobot();                                    //zatrzymywanie robota po obrocie
             if (poseSensor[0] - prevPoseSensor[0] == 0) {
@@ -173,7 +173,7 @@
         return false;
     }
 
-    bool CleaningRobot::turnRobotToAngle(double startAngle, double goalAngle) {      //obrót do konketnego po³o¿enia robota
+    bool CleaningRobot::rotateRobotToAngle(double startAngle, double goalAngle) {      //obrót do konketnego po³o¿enia robota
         double angle = goalAngle - startAngle;
         if (angle > pi) {
             angle = -2 * pi + angle;
@@ -181,7 +181,7 @@
         else if (angle < -pi) {
             angle = 2 * pi + angle;
         }
-        if (turnRobot(startAngle, angle))
+        if (rotateRobot(startAngle, angle))
             return true;
         else
             return false;

@@ -8,8 +8,8 @@
         mode = m;
     }
 
-    bool RobotController::xdd() {
-        return xd;
+    bool RobotController::isFirstObstacleRotation() {
+        return firstObstacleRotation;
     }
 
     int RobotController::getMode() {
@@ -28,6 +28,14 @@
         return gridFinding;
     }
 
+    int RobotController::getDistanceTraveled() {
+        return distanceTraveled;
+    }
+
+    int RobotController::getTotalRotates() {
+        return totalRotates;
+    }
+
     void RobotController::setObstacleAvoidance(bool obs) {
         obstacleAvoidance = obs;
         gridFinding = true;
@@ -35,6 +43,7 @@
             exit(0);
         pathIterator = 0;
         path.clear();
+        firstObstacleRotation = true;
     }
 
     void RobotController::checkObs() {
@@ -50,7 +59,7 @@
         }
     }
 
-    void RobotController::checkMap() {       //!!!!!!!!!!! to te¿ potem mo¿na zmieniæ
+    void RobotController::checkMap() {
         if (!map->isFirstTurn() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 1 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 1)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
 
@@ -58,9 +67,6 @@
             map->closeMap();
             map->finishMapping();
             mode = 4;
-            //robot->clearDisplay();
-            //map->printMap();
-
         }
     }
 
@@ -94,17 +100,17 @@
             mode = 2;
     }
 
-    void RobotController::checkObstacles(const float* rangeImage) {      //!!!!!!!!!!!!!!!!!!!!!!!!!! to mo¿e poprawiæ
+    void RobotController::checkObstacles(const float* rangeImage) {
         bool obstacles = false;     //czy jakieœ przeszkody s¹ w zasiêgu lidara
         
-        if (mode == 2 || mode == 3 || mode == 7 || mode == 8 || mode == 9) {
+        if (mode == 2 || mode == 3 || mode == 7 || mode == 8 || mode == 9) {    //sprawdzanie przeszkód tylko gdy robot nie skrêca
             if (*(rangeImage + 199) > 0.4 && map->isMapping() && mode != 7 && mode != 8 && mode != 9)
                 mode = 4;
             else {
                 for (int i = 0; i < 200; i++) {
                     if (*(rangeImage + i) < robot->getLidarRange()) {
                         obstacles = true;
-                        if (mode != 7 && mode != 8 && mode != 9)
+                        if (mode != 7 && mode != 8 && mode != 9)    //zmniejszanie prêdkoœci robota
                             mode = 3;
                         if (map->isMapping()) {
                             double* xy = robot->calculatePoint(*(rangeImage + i), i);
@@ -112,16 +118,14 @@
                             delete[] xy;
                         }
                     }
-                    if (*(rangeImage + i) < 0.2) {
+                    if (*(rangeImage + i) < 0.2) {      //je¿eli przeszkoda jest zbyt blisko = stop
                         mode = 4;
                         if (!map->isWallFound())
                             map->beginMapping();
                         map->setWallFound();
                         break;
                     }
-                    //std::cout << i << "->" << *(rangeImage + i) << " ";
                 }
-                //std::cout << std::endl;
             }
         }
 
@@ -557,12 +561,12 @@
                     }
                 }
                 else if (cleaning && obstacleAvoidance) {
-                    if (xd) {
+                    if (firstObstacleRotation) {
                         mode = 12;
                         map->setObsClosurePosition(robot->getPosition()[0], robot->getPosition()[1]);
                         map->beginObstacling();
                         std::cout << "zamkniecie: x = " << robot->getPosition()[0] << "   y = " << robot->getPosition()[1] << std::endl;
-                        xd = false;
+                        firstObstacleRotation = false;
                     }
                     else {
                         for (int i = 0; i < 200; i++) {
@@ -625,11 +629,6 @@
                         }
                     }
                     else {
-                        if (isRoomClean(map->getGrid())) {
-                            std::cout << "Dlugosc sciezki robota: " << distanceTraveled << std::endl;
-                            std::cout << "Laczna liczba zakretow: " << totalRotates << std::endl;
-                            exit(0);
-                        }
                         pathIterator = 0;
                         path.clear();
                         gridFinding = true;
@@ -647,10 +646,10 @@
         case 4: if (robot->stopRobot())  //zatrzymywanie robota
                     mode = 1;
                 break;
-        case 5: if (robot->turnRobot(startAngle, targetAngle))      // obrót robota o podany k¹t
+        case 5: if (robot->rotateRobot(startAngle, targetAngle))      // obrót robota o podany k¹t
                     mode = 3;
                 break;
-        case 6: if (robot->turnRobot(startAngle, -pi / 2)) {
+        case 6: if (robot->rotateRobot(startAngle, -pi / 2)) {
             mode = 7;
             if (obstacleAvoidance)
                 cond1 = 0.29;
@@ -675,7 +674,7 @@
                 else if (robot->stopRobot())
                     mode = 6;
                 break;
-        case 10: if (robot->turnRobotToAngle(startAngle, targetAngle)) {  // pi / 2, 0
+        case 10: if (robot->rotateRobotToAngle(startAngle, targetAngle)) {  // pi / 2, 0
                     if (robot->getPosition()[2] > 6 || robot->getPosition()[2] < 0.1 || (robot->getPosition()[2] > pi - 0.1 && robot->getPosition()[2] < pi + 0.1)) {
                         mode = 13;
                         startCoord = robot->getPosition()[0];
@@ -696,7 +695,7 @@
                     mode = 4;
             break;
         case 12: if (*(rangeImage + 199) > 0.29)
-            robot->turnRobot(startAngle, 2 * pi);
+            robot->rotateRobot(startAngle, 2 * pi);
                else
             mode = 4;
             break;

@@ -9,7 +9,7 @@ private:
     CleaningRobot* robot;
     Map* map;
     bool cleaning = false;
-    bool xd = true;
+    bool firstObstacleRotation = true;
     bool obstacleAvoidance = false;
     double startAngle = 0;
     double distance = 0;
@@ -30,9 +30,13 @@ public:
 
     void setMode(int m);
 
-    bool xdd();//////////////
+    bool isFirstObstacleRotation();//////////////
 
     int getMode();
+
+    int getDistanceTraveled();
+
+    int getTotalRotates();
 
     void checkObs();
 

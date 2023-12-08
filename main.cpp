@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);
     map->setMapCorrectionValue(40);
-    map->setArenaSize(500, 600);
+    map->setArenaSize(500, 400);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;
@@ -21,36 +21,52 @@ int main(int argc, char **argv) {
 
         const float* lidarScan = cr->getLidarScan();    // pobranie aktualnych danych z lidara
 
-        if (!controller->isCleaning()) {    // mapowanie
-            if (map->isFirstTurn() || map->isMapping() || map->isMapOpened()) {
-                cr->refreshDisplay(lidarScan);
 
+        if (!controller->isCleaning()) {    // mapowanie         
+            if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened()
+                && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0
+                && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) // je¿eli mapowanie ukoñczone
+            {
+                controller->startCleaning();
+                map->createMap(cr->getPosition()[0], cr->getPosition()[1], true);
+                cr->drawMap(map->getMap());
+            }
+            else {
+                cr->refreshDisplay(lidarScan);
                 controller->checkMap();                 // sprawdzanie warunków otwarcia i zamkniêcia mapy
                 controller->checkObstacles(lidarScan);  // wykrywanie przeszkód
                 controller->chooseMode(lidarScan);      // wybór trybu pracy robota
             }
-            else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
-                controller->startCleaning();            // je¿eli mapowanie ukoñczone
-                map->createMap(cr->getPosition()[0], cr->getPosition()[1], true);
-                cr->drawMap(map->getMap());
-            }
-            else if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened())
-                controller->chooseMode(lidarScan);           
         }
+
+        else if (controller->isRoomClean(map->getGrid())) {     // czy wszystkie kratki zosta³y odwiedzone przez robota
+            std::cout << "Dlugosc sciezki robota: " << controller->getDistanceTraveled() << std::endl;
+            std::cout << "Laczna liczba zakretow: " << controller->getTotalRotates() << std::endl;
+            break;
+        }
+
         else if (!map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())    // je¿eli s¹ nieodwiedzone komórki dooko³a
             controller->planPath();
+
         else if (map->areNeighbourCellsOccupied(cr->getPosition()[0], cr->getPosition()[1]) && controller->isGridFinding())     // je¿eli trzeba dojechaæ do nieodwiedzonej komórki
-            controller->planPathToPoint();    
+            controller->planPathToPoint();  
+
         else if (controller->isCleaning() && controller->isObstacleAvoidance()) {   // omijanie i skanowanie przeszkody
-            controller->checkObs();
-            controller->checkObstacles2(lidarScan);
-            controller->chooseMode(lidarScan);
-            if (!controller->xdd() && !map->isObstacling() && !map->isObsOpened() && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) {
+            if (!controller->isFirstObstacleRotation() && !map->isObstacling() && !map->isObsOpened()
+                && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0
+                && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0)    // je¿eli obje¿d¿anie przeszkody zakoñczone
+            {
                 controller->setObstacleAvoidance(false);
                 map->createMap(cr->getPosition()[0], cr->getPosition()[1], false);
                 map->printGrid();
             }
+            else {
+                controller->checkObs();
+                controller->checkObstacles2(lidarScan);
+                controller->chooseMode(lidarScan);
+            }
         }
+
         else {      // obje¿d¿anie pomieszczenia
             if (!controller->checkObstacleTransform())
                 controller->Lidar(lidarScan);
