@@ -68,7 +68,7 @@
     }
 
     void RobotController::checkMap() {
-        if (!map->isFirstRotation() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 1 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 1)))
+        if (!map->isFirstRotation() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) > 0.2 || abs(map->getMapClosurePosition()[1] - robot->getPosition()[1] > 0.2)))
             map->openMap();            //mo¿liwoœæ zamkniêcia pêtli mapy
 
         if (map->isMapping() && map->isMapOpened() && (abs(map->getMapClosurePosition()[0] - robot->getPosition()[0]) < 0.2) && (abs(map->getMapClosurePosition()[1] - robot->getPosition()[1]) < 0.2)) {

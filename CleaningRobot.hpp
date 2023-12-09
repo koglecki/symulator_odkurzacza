@@ -25,6 +25,7 @@ private:
     int displayHeight;
 
     void clearRobotDisplay();
+
     void setRobot();
 
 public:

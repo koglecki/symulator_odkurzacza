@@ -3,17 +3,17 @@
 #include <cmath>
 
 int main(int argc, char **argv) {
-    CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
-    //CleaningRobot* cr = new CleaningRobot(1.79, 1.78, 1.5708);
+    //CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
+    CleaningRobot* cr = new CleaningRobot(1.64, -1.03, 0);
     //CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);
-    map->setMapCorrectionValue(40);
+    map->setMapCorrectionValue(20);
     map->setArenaSize(500, 400);
     controller->setPathConditions(true);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
-        std::cout << "mode = " << controller->getMode() << std::endl;
+        //std::cout << "mode = " << controller->getMode() << std::endl;
 
         if (controller->isCleaning())
             cr->calculatePosition(0);                // obliczanie nowej pozycji robota

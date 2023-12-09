@@ -5,67 +5,128 @@
     void Map::beginMapping() {
         mapping = true;
     }
+
     void Map::finishMapping() {
         mapping = false;
     }
+
     void Map::beginObstacling() {
         obstacling = true;
     }
+
     void Map::finishObstacling() {
         obstacling = false;
     }
+
     bool Map::isMapping() {
         return mapping;
     }
+
     bool Map::isObstacling() {
         return obstacling;
     }
+
     bool Map::isWallFound() {
         return wallFound;
     }
+
     void Map::setWallFound() {
         wallFound = true;
     }
+
     double* Map::getMapClosurePosition() {
         return mapClosurePosition;
     }
+
     double* Map::getObsClosurePosition() {
         return obsClosurePosition;
     }
+
     void Map::openMap() {
         mapOpened = true;
     }
+
     void Map::closeMap() {
         mapOpened = false;
     }
+
     void Map::openObs() {
         obsOpened = true;
     }
+
     void Map::closeObs() {
         obsOpened = false;
     }
+
     bool Map::isMapOpened() {
         return mapOpened;
     }
+
     bool Map::isObsOpened() {
         return obsOpened;
     }
+
     void Map::setMapClosurePosition(double x, double y) {
         mapClosurePosition[0] = x;
         mapClosurePosition[1] = y;
     }
+
     void Map::setObsClosurePosition(double x, double y) {
         obsClosurePosition[0] = x;
         obsClosurePosition[1] = y;
     }
+
     bool Map::isFirstRotation() {
         return firstRotation;
     }
+
     void Map::finishFirstRotation() {
         firstRotation = false;
     }
+
     void Map::setMapCorrectionValue(int value) {
         mapCorrectionValue = value;
+    }
+
+    void Map::setGridCell(int x, int y, int val) {
+        grid[y][x] = val;
+    }
+
+    std::vector <std::vector<int>> Map::getObsTransformGrid() {
+        return obstacleTransformGrid;
+    }
+
+    std::vector <std::vector<double>> Map::getPoints() {
+        return points;
+    }
+
+    std::vector <std::vector<bool>> Map::getMap() {
+        return map;
+    }
+
+    std::vector <std::vector<int>> Map::getGrid() {
+        return grid;
+    }
+
+    void Map::setArenaSize(int x, int y) {
+        arenaX = x;
+        arenaY = y;
+    }
+
+    int Map::getDispX() {
+        return displacementX;
+    }
+
+    int Map::getDispY() {
+        return displacementY;
+    }
+
+    int Map::getArenaX() {
+        return arenaX;
+    }
+
+    int Map::getArenaY() {
+        return arenaY;
     }
 
     bool Map::isPoint(double x, double y) {
@@ -234,14 +295,6 @@
     void Map::calculateObstacleTransformGrid() {
         obstacleTransformGrid = grid;
 
-        /*for (int g = 1; g < copy.size() - 1; g++) {
-            for (int h = 1; h < copy[g].size() - 1; h++) {
-                if (copy[g][h] == -2 && copy[g - 1][h - 1] != -2 && copy[g - 1][h] != -2 && copy[g - 1][h + 1] != -2)
-                    copy[g][h] = -1;
-                    
-            }
-        }*/
-
         for (int g = 0; g < obstacleTransformGrid.size(); g++) {
             for (int h = 0; h < obstacleTransformGrid[g].size(); h++) {
                 if (obstacleTransformGrid[g][h] != -2) {
@@ -257,34 +310,6 @@
                 }
             }
         }
-
-        /*for (int g = 0; g < obstacleTransformGrid.size(); g++) {
-            for (int h = 0; h < obstacleTransformGrid[g].size(); h++) {
-                std::cout << obstacleTransformGrid[g][h] << " ";
-            }
-            std::cout << std::endl;
-        }*/
-    }
-
-    void Map::setArenaSize(int x, int y) {
-        arenaX = x;
-        arenaY = y;
-    }
-
-    int Map::getDispX() {
-        return displacementX;
-    }
-
-    int Map::getDispY() {
-        return displacementY;
-    }
-
-    int Map::getArenaX() {
-        return arenaX;
-    }
-
-    int Map::getArenaY() {
-        return arenaY;
     }
 
     int* Map::getCurrentCell(double positionX, double positionY) {
@@ -305,11 +330,7 @@
         return currentCell;
     }
 
-    void Map::wavePropagation(std::vector <std::vector<int>> &grid, double positionX, double positionY) {
-        int* currentCell = getCurrentCell(positionX, positionY);
-        grid[currentCell[1]][currentCell[0]] = 0;
-        delete currentCell;
-
+    void Map::calculateWavePropagation(std::vector <std::vector<int>>& grid) {
         bool isFound = true;
         int i = 0;
         while (isFound) {
@@ -339,6 +360,14 @@
         }
     }
 
+    void Map::wavePropagation(std::vector <std::vector<int>> &grid, double positionX, double positionY) {
+        int* currentCell = getCurrentCell(positionX, positionY);
+        grid[currentCell[1]][currentCell[0]] = 0;
+        delete currentCell;
+
+        calculateWavePropagation(grid);
+    }
+
     void Map::fastWavePropagation(std::vector <std::vector<int>>& grid) {
         int x = 0;
         int y = 0;
@@ -366,33 +395,7 @@
         }
         copy[y][x] = 0;
 
-        isFound = true;
-        int i = 0;
-        while (isFound) {
-            isFound = false;    //mo¿na skróciæ???
-            for (int g = 0; g < copy.size(); g++) {
-                for (int h = 0; h < copy[g].size(); h++) {
-                    if (copy[g][h] == i) {
-                        isFound = true;
-                        if (g > 0 && copy[g - 1][h] == -1)
-                            copy[g - 1][h] = i + 1;
-                        if (h > 0 && copy[g][h - 1] == -1)
-                            copy[g][h - 1] = i + 1;
-                        if (g < copy.size() - 1 && copy[g + 1][h] == -1)
-                            copy[g + 1][h] = i + 1;
-                        if (h < copy[g].size() - 1 && copy[g][h + 1] == -1)
-                            copy[g][h + 1] = i + 1;
-                    }
-                }
-            }
-            i++;
-        }
-        for (int g = 0; g < copy.size(); g++) {
-            for (int h = 0; h < copy[g].size(); h++) {
-                if (copy[g][h] == -1)
-                    copy[g][h] = -2;
-            }
-        }
+        calculateWavePropagation(copy);
 
         for (int g = 0; g < grid.size(); g++) {
             for (int h = 0; h < grid[g].size(); h++) {
@@ -423,26 +426,6 @@
             }
             std::cout << std::endl;
         }
-    }
-
-    void Map::setGridCell(int x, int y, int val) {
-        grid[y][x] = val;
-    }
-
-    std::vector <std::vector<int>> Map::getObsTransformGrid() {
-        return obstacleTransformGrid;
-    }
-
-    std::vector <std::vector<double>> Map::getPoints() {
-        return points;
-    }
-
-    std::vector <std::vector<bool>> Map::getMap() {
-        return map;
-    }
-
-    std::vector <std::vector<int>> Map::getGrid() {
-        return grid;
     }
 
     Map::~Map() {

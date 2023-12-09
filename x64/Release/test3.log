@@ -1,11 +1,8 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: Katalog pośredni (x64\Release\) zawiera pliki udostępnione z innego projektu (test3.vcxproj). Może to spowodować niepoprawne zachowanie podczas oczyszczania i ponownej kompilacji.
-  RobotController.cpp
-C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\RobotController.cpp(241,37): warning C4267: "+=": konwersja z "size_t" do "int", możliwa utrata danych
-C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\RobotController.cpp(469,37): warning C4267: "+=": konwersja z "size_t" do "int", możliwa utrata danych
   main.cpp
   Trwa generowanie kodu
-  6 of 1098 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
-    5 functions had inline decision re-evaluated but remain unchanged
+  1 of 1098 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Zakończono generowanie kodu
   test3.vcxproj -> C:\Users\Student1\Documents\symulator_odkurzacza\controllers\test3\simulator.exe
