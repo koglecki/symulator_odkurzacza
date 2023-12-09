@@ -24,13 +24,24 @@ private:
     double cond2 = 0;
     int distanceTraveled = 0;
     int totalRotates = 0;
+    bool extraPathConditions = true;
+
+    void wallFollowing(const float* rangeImage);
+
+    void obstacleFollowing(const float* rangeImage);
+
+    void obstaclesWhenRobotIsStopped(bool& obstacleInFront, bool& obstacle, const float* rangeImage);
 
 public:
     RobotController(CleaningRobot* cr, Map* m);
 
     void setMode(int m);
 
-    bool isFirstObstacleRotation();//////////////
+    void finishObstacleAvoidance();
+
+    void setPathConditions(bool c);
+
+    bool isFirstObstacleRotation();
 
     int getMode();
 
@@ -38,7 +49,7 @@ public:
 
     int getTotalRotates();
 
-    void checkObs();
+    void checkObstacleCompletion();
 
     bool isCleaning();
 
@@ -50,7 +61,7 @@ public:
 
     bool checkObstacleTransform();
 
-    void Lidar(const float* rangeImage);
+    void checkUnexpectedObstacles(const float* rangeImage);
 
     bool isGridFinding();
 
@@ -64,11 +75,11 @@ public:
 
     void checkObstacles(const float* rangeImage);
 
-    void checkObstacles2(const float* rangeImage);
+    void checkObstacle(const float* rangeImage);
 
     void chooseMode(const float* rangeImage);
 
-    double distMax(double x, double y);
+    double getTargetAngle(double x, double y);
 
     void planPath();
 
@@ -76,7 +87,7 @@ public:
 
     void occupyVisitedCells();
 
-    int chooseWay(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY);
+    int considerPathConditions(bool* equalValues, int currentGridX, int currentGridY, double currentX, double currentY);
 
     void convertCoords(double &x, double &y);
 
@@ -88,6 +99,6 @@ public:
 
     int* getGoalPoint(std::vector <std::vector<int>> localGrid);
 
-    bool chooseNext(int& currentGridX, int& currentGridY, double& currentX, double& currentY, std::vector <std::vector<int>>& localGrid);
+    bool chooseNextPoint(int& currentGridX, int& currentGridY, double& currentX, double& currentY, std::vector <std::vector<int>>& localGrid);
 };
 #endif

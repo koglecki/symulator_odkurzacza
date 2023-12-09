@@ -58,11 +58,11 @@
         obsClosurePosition[0] = x;
         obsClosurePosition[1] = y;
     }
-    bool Map::isFirstTurn() {
-        return firstTurn;
+    bool Map::isFirstRotation() {
+        return firstRotation;
     }
-    void Map::finishFirstTurn() {
-        firstTurn = false;
+    void Map::finishFirstRotation() {
+        firstRotation = false;
     }
     void Map::setMapCorrectionValue(int value) {
         mapCorrectionValue = value;
@@ -427,10 +427,6 @@
 
     void Map::setGridCell(int x, int y, int val) {
         grid[y][x] = val;
-    }
-
-    void Map::setGrid(std::vector <std::vector<int>> newGrid) {
-        grid = newGrid;
     }
 
     std::vector <std::vector<int>> Map::getObsTransformGrid() {

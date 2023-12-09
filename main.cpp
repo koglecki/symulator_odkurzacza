@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
     RobotController* controller = new RobotController(cr, map);
     map->setMapCorrectionValue(40);
     map->setArenaSize(500, 400);
+    controller->setPathConditions(true);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;
@@ -23,7 +24,7 @@ int main(int argc, char **argv) {
 
 
         if (!controller->isCleaning()) {    // mapowanie         
-            if (!map->isFirstTurn() && !map->isMapping() && !map->isMapOpened()
+            if (!map->isFirstRotation() && !map->isMapping() && !map->isMapOpened()
                 && cr->getPoseSensor()[0] - cr->getPrevPoseSensor()[0] == 0
                 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0) // je¿eli mapowanie ukoñczone
             {
@@ -57,19 +58,20 @@ int main(int argc, char **argv) {
                 && cr->getPoseSensor()[1] - cr->getPrevPoseSensor()[1] == 0)    // je¿eli obje¿d¿anie przeszkody zakoñczone
             {
                 controller->setObstacleAvoidance(false);
+                controller->finishObstacleAvoidance();
                 map->createMap(cr->getPosition()[0], cr->getPosition()[1], false);
                 map->printGrid();
             }
             else {
-                controller->checkObs();
-                controller->checkObstacles2(lidarScan);
+                controller->checkObstacleCompletion();
+                controller->checkObstacle(lidarScan);
                 controller->chooseMode(lidarScan);
             }
         }
 
         else {      // obje¿d¿anie pomieszczenia
             if (!controller->checkObstacleTransform())
-                controller->Lidar(lidarScan);
+                controller->checkUnexpectedObstacles(lidarScan);
             controller->chooseMode(lidarScan);
         }
         

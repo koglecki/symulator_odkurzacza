@@ -8,7 +8,7 @@ private:
     double mapClosurePosition[2] = { 0, 0 };        //wspó³rzêdne zamkniêcia mapy
     bool mapOpened = false;                //czy mapa jest otwarta (czy mo¿na j¹ zamkn¹æ)
     bool wallFound = false;            //czy pierwsza œciana zosta³a znaleziona
-    bool firstTurn = true;              //czy trwa pierwszy obrót podczas mapowania
+    bool firstRotation = true;              //czy trwa pierwszy obrót podczas mapowania
     int mapCorrectionValue = 50;
     int gridSizeX;
     int gridSizeY;
@@ -50,8 +50,8 @@ public:
     void setArenaSize(int x, int y);
     bool isMapOpened();
     void setMapClosurePosition(double x, double y);
-    bool isFirstTurn();
-    void finishFirstTurn();
+    bool isFirstRotation();
+    void finishFirstRotation();
     bool isPoint(double x, double y);
     void insertPoint(double x, double y);
     void newGlobalMap();
@@ -67,7 +67,6 @@ public:
     std::vector <std::vector<int>> getGrid();
     std::vector <std::vector<int>> getObsTransformGrid();
     void printGrid();
-    void setGrid(std::vector <std::vector<int>> newGrid);
     void setGridCell(int x, int y, int val);
     int* getCurrentCell(double positionX, double positionY);
     ~Map();
