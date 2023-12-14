@@ -4,16 +4,16 @@
 
 int main(int argc, char **argv) {
     //CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
-    CleaningRobot* cr = new CleaningRobot(1.64, -1.03, 0);
-    //CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
+    //CleaningRobot* cr = new CleaningRobot(1.64, -1.03, 0);
+    CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);
-    map->setMapCorrectionValue(20);
-    map->setArenaSize(500, 400);
+    map->setMapCorrectionValue(40);
+    map->setArenaSize(400, 400);
     controller->setPathConditions(true);
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
-        //std::cout << "mode = " << controller->getMode() << std::endl;
+        std::cout << "mode = " << controller->getMode() << std::endl;
 
         if (controller->isCleaning())
             cr->calculatePosition(0);                // obliczanie nowej pozycji robota
@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
             cr->calculatePosition(1);
 
         const float* lidarScan = cr->getLidarScan();    // pobranie aktualnych danych z lidara
-
+        std::cout << *(lidarScan + 199) << std::endl;
 
         if (!controller->isCleaning()) {    // mapowanie         
             if (!map->isFirstRotation() && !map->isMapping() && !map->isMapOpened()

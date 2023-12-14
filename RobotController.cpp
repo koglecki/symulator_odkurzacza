@@ -523,20 +523,20 @@
             mode = 5;
             targetAngle = pi / 2;
         }
-        else if (*(rangeImage + 199) > 0.29 && !obstacle) {    //przy wewnêtrznym rogu -> szukanie przeszkody na nowo
+        else if (*(rangeImage + 199) > 0.31 && !obstacle) {    //przy wewnêtrznym rogu -> szukanie przeszkody na nowo
             mode = 9;
             distance = 0;
         }
-        else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.24 && *(rangeImage + 199) < 0.29 && !obstacle) {    //robot skierowany do przeszkody -> podje¿d¿anie bli¿ej
+        else if (*(rangeImage + 199) > *(rangeImage + 196) && *(rangeImage + 199) > 0.24 && *(rangeImage + 199) < 0.31 && !obstacle) {    //robot skierowany do przeszkody -> podje¿d¿anie bli¿ej
             mode = 8;
-            cond1 = 0.29;
+            cond1 = 0.31;
             cond2 = 0.24;
         }
-        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.26 && *(rangeImage + 199) < 0.29) {     //wiêkszy obrót do przeszkody w przypadku uskoku
+        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.26 && *(rangeImage + 199) < 0.31 && !obstacle) {     //wiêkszy obrót do przeszkody w przypadku uskoku
             mode = 5;
             targetAngle = -0.3;
         }
-        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.24 && *(rangeImage + 199) <= 0.26) {   //lekki obrót do przeszkody
+        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.24 && *(rangeImage + 199) <= 0.26 && !obstacle) {   //lekki obrót do przeszkody
             mode = 5;
             targetAngle = -0.1;
         }
@@ -564,11 +564,11 @@
             cond1 = 0.6;
             cond2 = 0.4;
         }
-        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.45 && *(rangeImage + 199) < 0.6) {     //wiêkszy obrót do œciany w przypadku uskoku na œcianie
+        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.45 && *(rangeImage + 199) < 0.6 && !obstacle) {     //wiêkszy obrót do œciany w przypadku uskoku na œcianie
             mode = 5;
             targetAngle = -0.3;
         }
-        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) <= 0.45) {   //lekki obrót do œciany
+        else if (*(rangeImage + 199) < *(rangeImage + 196) && *(rangeImage + 199) > 0.4 && *(rangeImage + 199) <= 0.45 && !obstacle) {   //lekki obrót do œciany
             mode = 5;
             targetAngle = -0.1;
         }
@@ -645,7 +645,7 @@
         case 6: if (robot->rotateRobot(startAngle, -pi / 2)) {      // obrót o 90 stopni w prawo
                     mode = 7;
                     if (obstacleAvoidance)
-                        cond1 = 0.29;
+                        cond1 = 0.31;
                     else
                         cond1 = 0.6;
                 }

@@ -91,7 +91,7 @@
         position[1] = new_position[1];
         position[2] = new_position[2];
 
-        //std::cout << "Pozycja:   x = " << position[0] << " , y = " << position[1] << " , theta = " << position[2] << std::endl;
+        std::cout << "Pozycja:   x = " << position[0] << " , y = " << position[1] << " , theta = " << position[2] << std::endl;
     }
 
     void CleaningRobot::drawRobot() {
