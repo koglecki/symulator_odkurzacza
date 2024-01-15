@@ -3,14 +3,14 @@
 #include <cmath>
 
 int main(int argc, char **argv) {
-    //CleaningRobot* cr = new CleaningRobot(0.51, 1.7, 3.14159);
-    //CleaningRobot* cr = new CleaningRobot(1.64, -1.03, 0);
-    CleaningRobot* cr = new CleaningRobot(1.16, -0.51, 0);
+    //-----------------------------------------------------------------------
+    CleaningRobot* cr = new CleaningRobot(0.91, 0.33, 4.71239);  // wspó³rzêdne startowe robota
     Map* map = new Map();
     RobotController* controller = new RobotController(cr, map);
-    map->setMapCorrectionValue(40);
-    map->setArenaSize(400, 400);
-    controller->setPathConditions(true);
+    map->setMapCorrectionValue(40);     // wartoœæ korekcji mapy
+    map->setArenaSize(500, 600);        // wymiary areny
+    controller->setPathConditions(true);    // dodatkowe warunki œcie¿ki
+    //-----------------------------------------------------------------------
     
     while (cr->robot->step(cr->getTimeStep()) != -1) {      // g³ówna pêtla programu
         std::cout << "mode = " << controller->getMode() << std::endl;
