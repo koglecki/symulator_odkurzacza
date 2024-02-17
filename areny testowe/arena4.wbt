@@ -1,0 +1,294 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Parquetry.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/fruits/protos/Apple.proto"
+
+WorldInfo {
+  basicTimeStep 64
+}
+Viewpoint {
+  orientation -0.3362566010972419 0.2910897578398985 0.8956552077106678 1.8225455214407695
+  position 0.9489326609500349 -7.537144554189311 6.785377346261477
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+  luminosity 0.7
+  castShadows FALSE
+}
+RectangleArena {
+  floorSize 4 4
+  floorTileSize 4 4
+  floorAppearance Parquetry {
+    type "light strip"
+  }
+  wallThickness 0.1
+  wallHeight 0.5
+  wallAppearance BrushedAluminium {
+    IBLStrength 5
+  }
+}
+Robot {
+  translation 1.16 -0.51 0.059
+  children [
+    Solid {
+      translation 0.1 0 0.04
+      children [
+        DEF button Shape {
+          appearance PBRAppearance {
+            baseColor 0.8 0.3 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.02
+            radius 0.02
+          }
+        }
+      ]
+      boundingObject USE button
+    }
+    Pen {
+      translation 0 0 -0.058
+      inkColor 0 0 0.8
+      inkDensity 0.6613971373638111
+      leadSize 0.2
+    }
+    Lidar {
+      translation 0.169 0 -0.03
+      horizontalResolution 200
+      fieldOfView 3.14159
+      numberOfLayers 1
+    }
+    Display {
+      rotation 0 0 1 3.14
+      width 600
+      height 500
+    }
+    Pose {
+      children [
+        DEF body Shape {
+          appearance PBRAppearance {
+            baseColor 1 0 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.088
+            radius 0.169
+          }
+        }
+      ]
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0 -0.018
+      }
+      device [
+        RotationalMotor {
+          name "right_motor"
+          consumptionFactor -0.001
+          maxVelocity 15
+        }
+        PositionSensor {
+          name "right_position"
+        }
+      ]
+      endPoint Solid {
+        translation 0 -0.13 -0.018
+        rotation 0.20796171599720592 -0.6916460114586965 0.6916485520210204 2.731515710561949
+        children [
+          Pose {
+            rotation 1 0 0 0
+            children [
+              DEF wheel Shape {
+                appearance PBRAppearance {
+                  baseColor 0 0 0
+                  metalness 0
+                }
+                geometry Cylinder {
+                  height 0.02
+                  radius 0.04
+                }
+              }
+            ]
+          }
+        ]
+        name "right wheel"
+        boundingObject DEF wheel Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.02
+            radius 0.04
+          }
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0 -0.018
+      }
+      device [
+        RotationalMotor {
+          name "left_motor"
+          consumptionFactor -0.001
+          maxVelocity 15
+        }
+        PositionSensor {
+          name "left_position"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0.13 -0.018
+        rotation 0.20796171599720628 -0.6916460114586961 0.6916485520210206 2.7315157105619505
+        children [
+          Pose {
+            rotation 1 0 0 0
+            children [
+              DEF wheel Shape {
+                appearance PBRAppearance {
+                  baseColor 0 0 0
+                  metalness 0
+                }
+                geometry Cylinder {
+                  height 0.02
+                  radius 0.04
+                }
+              }
+            ]
+          }
+        ]
+        name "left wheel"
+        boundingObject DEF wheel Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.02
+            radius 0.04
+          }
+        }
+      }
+    }
+  ]
+  boundingObject USE body
+  controller "<extern>"
+}
+Solid {
+  translation 3.29 0 0.25
+  children [
+    DEF box Shape {
+      appearance PBRAppearance {
+      }
+      geometry Box {
+        size 2 2 0.5
+      }
+    }
+  ]
+  boundingObject USE box
+}
+Solid {
+  translation 0 0 0.15
+  children [
+    DEF box Shape {
+      appearance PBRAppearance {
+      }
+      geometry Box {
+        size 0.2 0.2 0.3
+      }
+    }
+  ]
+  name "solid(1)"
+  boundingObject USE box
+}
+Solid {
+  translation -0.35 0 0.2
+  children [
+    DEF leg Shape {
+      appearance PBRAppearance {
+        baseColor 0.6 0.3 0.1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.4
+      }
+    }
+  ]
+  name "solid(2)"
+  boundingObject USE leg
+}
+Solid {
+  translation 0.05 0 0.2
+  children [
+    DEF leg Shape {
+      appearance PBRAppearance {
+        baseColor 0.6 0.3 0.1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.4
+      }
+    }
+  ]
+  name "solid(4)"
+  boundingObject USE leg
+}
+Solid {
+  translation 0.05 -0.4 0.2
+  children [
+    DEF leg Shape {
+      appearance PBRAppearance {
+        baseColor 0.6 0.3 0.1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.4
+      }
+    }
+  ]
+  name "solid(5)"
+  boundingObject USE leg
+}
+Solid {
+  translation -0.35 -0.4 0.2
+  children [
+    DEF leg Shape {
+      appearance PBRAppearance {
+        baseColor 0.6 0.3 0.1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.4
+      }
+    }
+  ]
+  name "solid(3)"
+  boundingObject USE leg
+}
+Solid {
+  translation -0.15 -0.2 0.45
+  children [
+    DEF leg Shape {
+      appearance PBRAppearance {
+        baseColor 0.6 0.3 0.1
+        metalness 0
+      }
+      geometry Box {
+        size 0.5 0.5 0.1
+      }
+    }
+  ]
+  name "solid(6)"
+  boundingObject USE leg
+}
+Apple {
+  translation -0.18 -0.31 0.55
+}
